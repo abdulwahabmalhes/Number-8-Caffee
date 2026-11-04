@@ -1,0 +1,60 @@
+# Number Eight Specialty Coffee - Master .gitignore
+
+# Environment & Secret Configurations
+.env
+.env.backup
+.env.production
+*.key
+auth.json
+
+# Backend (Laravel)
+/backend/vendor/
+/backend/node_modules/
+/backend/public/build/
+/backend/public/hot/
+/backend/public/storage/
+/backend/storage/*.key
+/backend/storage/logs/*.log
+/backend/storage/framework/cache/data/*
+/backend/storage/framework/sessions/*
+/backend/storage/framework/views/*
+/backend/storage/pail/
+/backend/.phpunit.cache/
+/backend/.phpunit.result.cache
+
+# Frontend (Flutter / Dart)
+/frontend/.dart_tool/
+/frontend/.flutter-plugins
+/frontend/.flutter-plugins-dependencies
+/frontend/.packages
+/frontend/.pub-cache/
+/frontend/.pub/
+/frontend/build/
+/frontend/android/app/debug/
+/frontend/android/app/profile/
+/frontend/android/app/release/
+/frontend/ios/Flutter/.last_build_id
+/frontend/ios/Pods/
+/frontend/ios/.symlinks/
+
+# Binaries, Large APKs & Temporary Packaging Archives
+*.zip
+*.apk
+*.aab
+/NumberEight-Hosting-Package/
+/NumberEight-Patch-Fix/
+/NumberEight-Dashboard-Bilingual-Patch/
+
+# Logs & Temporary Files
+*.log
+*.tmp
+*.class
+*.pyc
+*.swp
+
+# OS & Editor Files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
