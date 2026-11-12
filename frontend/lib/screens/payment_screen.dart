@@ -968,38 +968,41 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                                 ),
                               ],
                             )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  _selectedType == PaymentType.stripe
-                                      ? Icons.lock_outline
-                                      : _selectedType == PaymentType.n8Wallet
-                                          ? Icons.account_balance_wallet_outlined
-                                          : Icons.storefront_outlined,
-                                  color: AppColors.goldAccent,
-                                  size: 18,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  _selectedType == PaymentType.stripe
-                                      ? (isArabic
-                                          ? 'المتابعة والدفع عبر Stripe (${widget.totalAmount.toInt()} AED)'
-                                          : 'Continue & Pay with Stripe (${widget.totalAmount.toInt()} AED)')
-                                      : _selectedType == PaymentType.n8Wallet
-                                          ? (isArabic
-                                              ? 'الدفع عبر المحفظة (${widget.totalAmount.toInt()} AED)'
-                                              : 'Pay with N8 Wallet (${widget.totalAmount.toInt()} AED)')
-                                          : (isArabic
-                                              ? 'تأكيد الطلب والدفع عند الاستلام'
-                                              : 'Confirm & Pay at Counter'),
-                                  style: GoogleFonts.tajawal(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.white,
+                          : FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    _selectedType == PaymentType.stripe
+                                        ? Icons.lock_outline
+                                        : _selectedType == PaymentType.n8Wallet
+                                            ? Icons.account_balance_wallet_outlined
+                                            : Icons.storefront_outlined,
+                                    color: AppColors.goldAccent,
+                                    size: 18,
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    _selectedType == PaymentType.stripe
+                                        ? (isArabic
+                                            ? 'الدفع عبر Stripe (${widget.totalAmount.toInt()} AED)'
+                                            : 'Pay with Stripe (${widget.totalAmount.toInt()} AED)')
+                                        : _selectedType == PaymentType.n8Wallet
+                                            ? (isArabic
+                                                ? 'الدفع عبر المحفظة (${widget.totalAmount.toInt()} AED)'
+                                                : 'Pay with N8 Wallet (${widget.totalAmount.toInt()} AED)')
+                                            : (isArabic
+                                                ? 'تأكيد الطلب والدفع عند الاستلام'
+                                                : 'Confirm & Pay at Counter'),
+                                    style: GoogleFonts.tajawal(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                     ),
                     const SizedBox(height: 10),

@@ -361,15 +361,12 @@ class _OrdersHistoryScreenState extends ConsumerState<OrdersHistoryScreen> {
 
                   const SizedBox(height: 20),
 
-                  // Action Button: View / Print Invoice in browser
+                  // Action Button: View In-App Official Thermal Tax Invoice
                   OutlinedButton.icon(
-                    onPressed: () {
-                      final url = 'https://no8.ae/operations/orders/${order['id']}/receipt';
-                      launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-                    },
+                    onPressed: () => _showInAppThermalReceipt(context, order, isArabic),
                     icon: const Icon(Icons.receipt_long_rounded, color: AppColors.primaryBlack, size: 20),
                     label: Text(
-                      isArabic ? 'طباعة / عرض الفاتورة الرسمية 🖨️' : 'Print / View Official Invoice 🖨️',
+                      isArabic ? 'عرض الفاتورة الضريبية الرسمية 🧾' : 'View Official Tax Invoice 🧾',
                       style: GoogleFonts.tajawal(fontWeight: FontWeight.w700, color: AppColors.primaryBlack),
                     ),
                     style: OutlinedButton.styleFrom(
@@ -429,6 +426,298 @@ class _OrdersHistoryScreenState extends ConsumerState<OrdersHistoryScreen> {
           style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primaryBlack),
         ),
       ],
+    );
+  }
+
+  void _showInAppThermalReceipt(BuildContext context, Map<String, dynamic> order, bool isArabic) {
+    final items = (order['items'] as List<dynamic>? ?? []);
+    final vehicle = order['vehicle'];
+    final table = order['table'];
+    final grandTotal = double.tryParse(order['grand_total']?.toString() ?? '0') ?? 0.0;
+    final subtotal = double.tryParse(order['subtotal']?.toString() ?? '$grandTotal') ?? grandTotal;
+    final vat = grandTotal * 0.05;
+    final orderNum = order['order_number'] ?? '#NE1278';
+
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        child: Container(
+          width: 340,
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFDDDDDD), width: 1.2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Close button
+                Align(
+                  alignment: AlignmentDirectional.topEnd,
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(ctx),
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.close, size: 18, color: Colors.black),
+                    ),
+                  ),
+                ),
+
+                // Brand Header
+                Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        'NUMBER EIGHT',
+                        style: GoogleFonts.dmSans(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.5,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'SPECIALTY COFFEE — القهوة المختصة',
+                        style: GoogleFonts.tajawal(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF444444),
+                        ),
+                      ),
+                      Text(
+                        'فرع الخبيصي — العين — الإمارات',
+                        style: GoogleFonts.tajawal(fontSize: 10, color: const Color(0xFF666666)),
+                      ),
+                      Text(
+                        'الرقم الضريبي TRN: 100293847500003',
+                        style: GoogleFonts.dmSans(fontSize: 10, color: const Color(0xFF666666)),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF0EFEA),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          'فاتورة ضريبية مبسطة / TAX INVOICE',
+                          style: GoogleFonts.tajawal(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+                _buildDashedLine(),
+                const SizedBox(height: 8),
+
+                // Order Meta
+                _buildThermalRow('رقم الطلب / Order:', orderNum, isBold: true),
+                _buildThermalRow(
+                  'التاريخ / Date:',
+                  order['created_at'] != null
+                      ? order['created_at'].toString().substring(0, 16).replaceAll('T', ' ')
+                      : DateTime.now().toString().substring(0, 16),
+                ),
+                _buildThermalRow(
+                  'نوع الطلب / Type:',
+                  order['order_type'] == 'car'
+                      ? 'سيارة (${vehicle != null ? "${vehicle['plate_emirate']} ${vehicle['plate_number']}" : "-"})'
+                      : 'طاولة #${table != null ? table['table_number'] : "-"}',
+                ),
+                _buildThermalRow(
+                  'الدفع / Payment:',
+                  '${(order['payment_method'] ?? "Apple Pay").toString().toUpperCase()} (${order['payment_status'] == "paid" ? "مدفوع ✓" : "عند الكاشير"})',
+                ),
+
+                const SizedBox(height: 8),
+                _buildDashedLine(),
+                const SizedBox(height: 8),
+
+                // Items list
+                ...items.map((item) {
+                  final prod = item['product'];
+                  final prodName = prod != null ? (prod['name_en'] ?? prod['name_ar']) : 'Specialty Drink';
+                  final prodNameAr = prod != null ? (prod['name_ar'] ?? '') : '';
+                  final options = (item['options'] as List<dynamic>? ?? []);
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                '${item['quantity']}x $prodName',
+                                style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                            Text(
+                              '${item['total_price']} AED',
+                              style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w700),
+                            ),
+                          ],
+                        ),
+                        if (prodNameAr.isNotEmpty)
+                          Text(
+                            prodNameAr,
+                            style: GoogleFonts.tajawal(fontSize: 10, color: const Color(0xFF666666)),
+                          ),
+                        if (options.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              options.map((o) {
+                                final opt = o['option'];
+                                return opt != null ? '+ ${opt['name_en'] ?? opt['name_ar']}' : '';
+                              }).where((s) => s.isNotEmpty).join(' • '),
+                              style: GoogleFonts.dmSans(
+                                fontSize: 9.5,
+                                color: const Color(0xFF8B6B38),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                }),
+
+                _buildDashedLine(),
+                const SizedBox(height: 8),
+
+                // Totals
+                _buildThermalRow('المجموع الفرعي / Subtotal:', '${subtotal.toStringAsFixed(2)} AED'),
+                _buildThermalRow('الضريبة / VAT (5%):', '${vat.toStringAsFixed(2)} AED'),
+                const SizedBox(height: 4),
+                _buildDashedLine(),
+                const SizedBox(height: 6),
+                _buildThermalRow(
+                  'المبلغ الإجمالي / Total:',
+                  '${grandTotal.toStringAsFixed(2)} AED',
+                  isBold: true,
+                  fontSize: 13,
+                ),
+                const SizedBox(height: 6),
+                _buildDashedLine(),
+
+                // QR Code
+                const SizedBox(height: 12),
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 1.5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Image.network(
+                      'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=NUMBER_EIGHT_$orderNum&color=000000&bgcolor=FFFFFF',
+                      width: 84,
+                      height: 84,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => const Icon(Icons.qr_code_2, size: 70),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Center(
+                  child: Text(
+                    'شكراً لزيارتكم • Thank you for your visit',
+                    style: GoogleFonts.tajawal(fontSize: 10.5, fontWeight: FontWeight.w700, color: const Color(0xFF444444)),
+                  ),
+                ),
+
+                const SizedBox(height: 14),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
+                  child: Text(
+                    isArabic ? 'إغلاق الفاتورة' : 'Close Invoice',
+                    style: GoogleFonts.tajawal(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDashedLine() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final dashCount = (constraints.constrainWidth() / 8).floor();
+        return Flex(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          direction: Axis.horizontal,
+          children: List.generate(dashCount, (_) {
+            return const SizedBox(
+              width: 4,
+              height: 1,
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: Color(0xFF888888)),
+              ),
+            );
+          }),
+        );
+      },
+    );
+  }
+
+  Widget _buildThermalRow(String label, String value, {bool isBold = false, double fontSize = 11}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.tajawal(
+              fontSize: fontSize,
+              fontWeight: isBold ? FontWeight.w800 : FontWeight.w500,
+              color: Colors.black,
+            ),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.dmSans(
+              fontSize: fontSize,
+              fontWeight: isBold ? FontWeight.w800 : FontWeight.w600,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

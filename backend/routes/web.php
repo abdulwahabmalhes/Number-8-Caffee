@@ -10,7 +10,7 @@ Route::get('/', function () {
     return redirect('/operations');
 });
 
-// App Store Public URLs
+// App Store & Public Customer URLs
 Route::get('/privacy-policy', function () {
     return view('legal.privacy-policy');
 })->name('privacy.policy');
@@ -18,6 +18,10 @@ Route::get('/privacy-policy', function () {
 Route::get('/support', function () {
     return view('legal.support');
 })->name('support');
+
+// Public Tax Invoice / Receipt (No Login Required)
+Route::get('/receipt/{order_number}', [OperationsController::class, 'publicReceipt'])->name('public.receipt');
+Route::get('/invoice/{order_number}', [OperationsController::class, 'publicReceipt'])->name('public.invoice');
 
 // Auth Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');

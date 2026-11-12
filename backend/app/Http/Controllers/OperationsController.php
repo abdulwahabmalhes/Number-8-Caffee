@@ -94,6 +94,16 @@ class OperationsController extends Controller
         return view('operations.receipt', compact('order'));
     }
 
+    // Public Customer Tax Invoice View (No auth required)
+    public function publicReceipt($orderNumber)
+    {
+        $order = Order::with(['items.product', 'items.options.option', 'table', 'vehicle', 'branch'])
+            ->where('order_number', $orderNumber)
+            ->orWhere('id', $orderNumber)
+            ->firstOrFail();
+        return view('operations.receipt', compact('order'));
+    }
+
     // Print Cup Sticker Labels (50x50mm / 58mm Thermal Sticker)
     public function printSticker($id)
     {

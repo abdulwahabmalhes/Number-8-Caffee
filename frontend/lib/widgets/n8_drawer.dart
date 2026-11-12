@@ -23,14 +23,14 @@ class N8Drawer extends ConsumerWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           isArabic ? 'سياسة الخصوصية والشروط' : 'Privacy Policy & Terms',
-          style: GoogleFonts.tajawal(fontWeight: FontWeight.w800, fontSize: 18),
+          style: GoogleFonts.tajawal(fontWeight: FontWeight.w800, fontSize: 16),
         ),
         content: SingleChildScrollView(
           child: Text(
             isArabic
                 ? 'تطبيق NUMBER EIGHT يحترم خصوصيتك بالكامل. البيانات المستخدمة (رقم الهاتف، تفاصيل السيارة لطلبات الاستلام) تُستخدم حصرياً لإتمام طلبات القهوة وتحسين تجربتك داخل الفرع وخدمة السيارات. لا يتم مشاركة بياناتك مع أي طرف ثالث.\n\nفرع الخبيصي - العين - الإمارات العربية المتحدة.'
                 : 'NUMBER EIGHT respects your privacy. Information collected (phone number, vehicle details for car pickup) is used solely to process your coffee orders and deliver a seamless dine-in and car pickup experience. Your data is never shared with third parties.\n\nAl Khabisi Branch - Al Ain - UAE.',
-            style: GoogleFonts.tajawal(fontSize: 14, height: 1.6, color: AppColors.secondaryText),
+            style: GoogleFonts.tajawal(fontSize: 13, height: 1.5, color: AppColors.secondaryText),
           ),
         ),
         actions: [
@@ -55,28 +55,28 @@ class N8Drawer extends ConsumerWidget {
       child: SafeArea(
         child: Column(
           children: [
-            // Header
+            // Header with smaller, more refined fonts
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               decoration: const BoxDecoration(
                 color: AppColors.primaryBlack,
-                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
+                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(22), bottomRight: Radius.circular(22)),
               ),
               child: Row(
                 children: [
                   Container(
-                    width: 52,
-                    height: 52,
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(14),
                       image: const DecorationImage(
                         image: AssetImage('assets/images/logo.png'),
                         fit: BoxFit.contain,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,17 +85,17 @@ class N8Drawer extends ConsumerWidget {
                           'NUMBER EIGHT',
                           style: GoogleFonts.dmSans(
                             color: Colors.white,
-                            fontSize: 17,
+                            fontSize: 15,
                             fontWeight: FontWeight.w800,
-                            letterSpacing: 1.2,
+                            letterSpacing: 1.1,
                           ),
                         ),
-                        const SizedBox(height: 3),
+                        const SizedBox(height: 2),
                         Text(
                           isArabic ? 'القهوة المختصة — العين' : 'Specialty Coffee — Al Ain',
                           style: GoogleFonts.tajawal(
                             color: AppColors.gold,
-                            fontSize: 12,
+                            fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -106,29 +106,38 @@ class N8Drawer extends ConsumerWidget {
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
 
-            // Navigation Items
+            // Navigation Items (Exact User Contact Details & Smaller Typography)
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 children: [
-                  // WhatsApp Contact
-                  _buildListTile(
-                    icon: Icons.chat_bubble_outline_rounded,
-                    iconColor: const Color(0xFF25D366),
-                    title: isArabic ? 'خدمة العملاء (واتساب)' : 'WhatsApp Support',
-                    subtitle: '+971 50 000 0000',
-                    onTap: () => _launchUrl('https://wa.me/971500000000'),
-                  ),
-
-                  // Phone Call
+                  // Phone Call (Call 0565956180)
                   _buildListTile(
                     icon: Icons.phone_in_talk_rounded,
                     iconColor: AppColors.gold,
-                    title: isArabic ? 'الاتصال بالكافيه' : 'Call Coffee Shop',
-                    subtitle: isArabic ? 'فرع الخبيصي' : 'Al Khabisi Branch',
-                    onTap: () => _launchUrl('tel:+971500000000'),
+                    title: isArabic ? 'الاتصال المباشر' : 'Call Us',
+                    subtitle: '0565956180',
+                    onTap: () => _launchUrl('tel:0565956180'),
+                  ),
+
+                  // WhatsApp Contact (+971 56 595 6180)
+                  _buildListTile(
+                    icon: Icons.chat_bubble_outline_rounded,
+                    iconColor: const Color(0xFF25D366),
+                    title: isArabic ? 'واتساب الكافيه' : 'WhatsApp',
+                    subtitle: '+971 56 595 6180',
+                    onTap: () => _launchUrl('https://wa.me/971565956180'),
+                  ),
+
+                  // Email (saeed123_2007@hotmail.com)
+                  _buildListTile(
+                    icon: Icons.mail_outline_rounded,
+                    iconColor: const Color(0xFFEA4335),
+                    title: isArabic ? 'البريد الإلكتروني' : 'Email',
+                    subtitle: 'saeed123_2007@hotmail.com',
+                    onTap: () => _launchUrl('mailto:saeed123_2007@hotmail.com'),
                   ),
 
                   // Instagram
@@ -158,28 +167,30 @@ class N8Drawer extends ConsumerWidget {
                     onTap: () => _launchUrl('https://no8.ae'),
                   ),
 
-                  const Divider(color: AppColors.lightBorder, height: 28),
+                  const Divider(color: AppColors.lightBorder, height: 20),
 
                   // Language Switcher
                   ListTile(
+                    dense: true,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
                     leading: Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         color: AppColors.background,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(Icons.translate_rounded, color: AppColors.primaryBlack, size: 20),
+                      child: const Icon(Icons.translate_rounded, color: AppColors.primaryBlack, size: 17),
                     ),
                     title: Text(
                       isArabic ? 'اللغة / Language' : 'Language / اللغة',
-                      style: GoogleFonts.tajawal(fontWeight: FontWeight.w700, fontSize: 14),
+                      style: GoogleFonts.tajawal(fontWeight: FontWeight.w700, fontSize: 12.5),
                     ),
                     trailing: Text(
                       isArabic ? 'English' : 'العربية',
                       style: GoogleFonts.dmSans(
                         fontWeight: FontWeight.w700,
                         color: AppColors.gold,
-                        fontSize: 14,
+                        fontSize: 12.5,
                       ),
                     ),
                     onTap: () {
@@ -193,7 +204,7 @@ class N8Drawer extends ConsumerWidget {
                     icon: Icons.shield_outlined,
                     iconColor: AppColors.secondaryText,
                     title: isArabic ? 'سياسة الخصوصية والشروط' : 'Privacy Policy & Terms',
-                    subtitle: isArabic ? 'معتمدة لنظام iOS و Android' : 'Compliant with iOS & Android',
+                    subtitle: isArabic ? 'نظام iOS و Android' : 'iOS & Android Compliant',
                     onTap: () => _showPrivacyPolicy(context, isArabic),
                   ),
                 ],
@@ -202,23 +213,23 @@ class N8Drawer extends ConsumerWidget {
 
             // Footer
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Column(
                 children: [
                   Text(
                     'NUMBER EIGHT COFFEE © 2026',
                     style: GoogleFonts.dmSans(
-                      fontSize: 11,
+                      fontSize: 10,
                       fontWeight: FontWeight.w600,
                       color: AppColors.secondaryText,
                       letterSpacing: 0.8,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     'Version 1.0.1 (Build 5)',
                     style: GoogleFonts.dmSans(
-                      fontSize: 10,
+                      fontSize: 9.5,
                       color: AppColors.secondaryText.withValues(alpha: 0.7),
                     ),
                   ),
@@ -239,26 +250,26 @@ class N8Drawer extends ConsumerWidget {
     required VoidCallback onTap,
   }) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      dense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
       leading: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
           color: iconColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(icon, color: iconColor, size: 20),
+        child: Icon(icon, color: iconColor, size: 17),
       ),
       title: Text(
         title,
-        style: GoogleFonts.tajawal(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.primaryBlack),
+        style: GoogleFonts.tajawal(fontSize: 12.5, fontWeight: FontWeight.w700, color: AppColors.primaryBlack),
       ),
       subtitle: Text(
         subtitle,
-        style: GoogleFonts.dmSans(fontSize: 12, color: AppColors.secondaryText),
+        style: GoogleFonts.dmSans(fontSize: 11, color: AppColors.secondaryText),
       ),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.secondaryText),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 12, color: AppColors.secondaryText),
       onTap: onTap,
     );
   }
 }
-
