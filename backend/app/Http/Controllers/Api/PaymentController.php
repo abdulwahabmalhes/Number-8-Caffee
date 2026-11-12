@@ -9,6 +9,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\OrderItemOption;
+use App\Models\Option;
 use App\Models\Product;
 use App\Models\Vehicle;
 
@@ -45,17 +47,34 @@ class PaymentController extends Controller
 
             foreach ($request->items as $item) {
                 $product = Product::find($item['product_id']);
-                $sub = (float)$product->price * (int)$item['quantity'];
+                $optionsCost = 0;
+                $optionNames = [];
+                if (!empty($item['options']) && is_array($item['options'])) {
+                    foreach ($item['options'] as $optId) {
+                        $opt = Option::find($optId);
+                        if ($opt) {
+                            $optionsCost += (float)$opt->additional_price;
+                            $optionNames[] = $opt->name_en ?: $opt->name_ar;
+                        }
+                    }
+                }
+                $unitPrice = (float)$product->price + $optionsCost;
+                $sub = $unitPrice * (int)$item['quantity'];
                 $totalAmount += $sub;
+
+                $desc = 'NUMBER EIGHT SPECIALTY COFFEE';
+                if (!empty($optionNames)) {
+                    $desc .= ' (' . implode(', ', $optionNames) . ')';
+                }
 
                 $lineItems[] = [
                     'price_data' => [
                         'currency' => 'aed',
                         'product_data' => [
-                            'name' => $product->name_ar ?? $product->name,
-                            'description' => 'NUMBER EIGHT SPECIALTY COFFEE',
+                            'name' => $product->name_ar ?? $product->name_en,
+                            'description' => $desc,
                         ],
-                        'unit_amount' => (int) round($product->price * 100),
+                        'unit_amount' => (int) round($unitPrice * 100),
                     ],
                     'quantity' => (int) $item['quantity'],
                 ];
@@ -127,14 +146,38 @@ class PaymentController extends Controller
 
             foreach ($request->items as $item) {
                 $product = Product::find($item['product_id']);
-                OrderItem::create([
+                $optionsCost = 0;
+                if (!empty($item['options']) && is_array($item['options'])) {
+                    foreach ($item['options'] as $optId) {
+                        $opt = Option::find($optId);
+                        if ($opt) {
+                            $optionsCost += (float)$opt->additional_price;
+                        }
+                    }
+                }
+                $unitPrice = (float)$product->price + $optionsCost;
+
+                $orderItem = OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $product->id,
                     'quantity' => $item['quantity'],
-                    'unit_price' => $product->price,
-                    'total_price' => $product->price * $item['quantity'],
+                    'unit_price' => $unitPrice,
+                    'total_price' => $unitPrice * $item['quantity'],
                     'special_instructions' => $item['special_instructions'] ?? null,
                 ]);
+
+                if (!empty($item['options']) && is_array($item['options'])) {
+                    foreach ($item['options'] as $optId) {
+                        $opt = Option::find($optId);
+                        if ($opt) {
+                            OrderItemOption::create([
+                                'order_item_id' => $orderItem->id,
+                                'option_id' => $opt->id,
+                                'price' => $opt->additional_price,
+                            ]);
+                        }
+                    }
+                }
             }
 
             $host = $request->getHttpHost();

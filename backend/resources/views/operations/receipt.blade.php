@@ -92,9 +92,9 @@
             <span>نوع الطلب / Type:</span>
             <span class="bold">
                 @if($order->order_type == 'car')
-                    سيارة ({{ $order->vehicle ? $order->vehicle->plate_number : '12345 أ ب' }})
+                    سيارة ({{ $order->vehicle ? $order->vehicle->plate_number : '-' }})
                 @elseif($order->order_type == 'table')
-                    طاولة رقم ({{ $order->table ? $order->table->table_number : '08' }})
+                    طاولة رقم ({{ $order->table ? $order->table->table_number : '-' }})
                 @else
                     استلام من الكاونتر
                 @endif
@@ -122,6 +122,13 @@
                         <td>
                             <div class="bold">{{ $item->product ? $item->product->name_en : 'Spanish Latte' }}</div>
                             <div style="font-size: 9px; color: #555;">{{ $item->product ? $item->product->name_ar : 'سبانش لاتيه' }}</div>
+                            @if($item->options && $item->options->count() > 0)
+                                <div style="font-size: 8.5px; color: #222; margin-top: 2px;">
+                                    @foreach($item->options as $opt)
+                                        <div>+ {{ $opt->option ? $opt->option->name_en : '' }} ({{ $opt->option ? $opt->option->name_ar : '' }}) {{ $opt->price > 0 ? '+'.number_format($opt->price, 2) : '' }}</div>
+                                    @endforeach
+                                </div>
+                            @endif
                             @if($item->special_instructions)
                                 <div style="font-size: 8px; color: #666;">• {{ $item->special_instructions }}</div>
                             @endif

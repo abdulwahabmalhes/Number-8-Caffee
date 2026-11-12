@@ -12,7 +12,7 @@ class OperationsController extends Controller
     public function index()
     {
         // Fetch all orders for today (excluding uncompleted Stripe checkouts)
-        $orders = Order::with(['items.product', 'table', 'vehicle', 'branch'])
+        $orders = Order::with(['items.product', 'items.options.option', 'table', 'vehicle', 'branch'])
             ->whereDate('created_at', today())
             ->where('status', '!=', 'payment_pending')
             ->orderBy('created_at', 'desc')
@@ -66,7 +66,7 @@ class OperationsController extends Controller
 
     public function liveFeed()
     {
-        $orders = Order::with(['items.product', 'table', 'vehicle', 'branch'])
+        $orders = Order::with(['items.product', 'items.options.option', 'table', 'vehicle', 'branch'])
             ->whereDate('created_at', today())
             ->where('status', '!=', 'payment_pending')
             ->orderBy('created_at', 'desc')
@@ -90,27 +90,31 @@ class OperationsController extends Controller
     // Print Thermal Receipt / Tax Invoice
     public function printReceipt($id)
     {
-        $order = Order::with(['items.product', 'table', 'vehicle', 'branch'])->findOrFail($id);
+        $order = Order::with(['items.product', 'items.options.option', 'table', 'vehicle', 'branch'])->findOrFail($id);
         return view('operations.receipt', compact('order'));
     }
 
     // Print Cup Sticker Labels (50x50mm / 58mm Thermal Sticker)
     public function printSticker($id)
     {
-        $order = Order::with(['items.product', 'table', 'vehicle', 'branch', 'customer.orders'])->findOrFail($id);
+        $order = Order::with(['items.product', 'items.options.option', 'table', 'vehicle', 'branch', 'customer.orders'])->findOrFail($id);
         
         $stickers = [];
         $totalCups = max(1, $order->items->sum('quantity'));
         $currentCup = 1;
 
         foreach ($order->items as $item) {
+            $optionsList = $item->options ? $item->options->map(function($o) {
+                return $o->option ? ($o->option->name_en ?: $o->option->name_ar) : '';
+            })->filter()->implode(' • ') : '';
+
             for ($i = 0; $i < $item->quantity; $i++) {
                 $stickers[] = [
                     'cup_number' => $currentCup++,
                     'total_cups' => $totalCups,
                     'product_name_en' => $item->product ? $item->product->name_en : 'Specialty Drink',
                     'product_name_ar' => $item->product ? $item->product->name_ar : 'مشروب مختص',
-                    'special_instructions' => $item->special_instructions ?: '',
+                    'special_instructions' => $optionsList ?: ($item->special_instructions ?: ''),
                 ];
             }
         }

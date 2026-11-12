@@ -38,16 +38,16 @@ class N8BottomNav extends ConsumerWidget {
         labelEn: 'Orders',
       ),
       _NavItem(
-        icon: Icons.emoji_events_outlined,
-        activeIcon: Icons.emoji_events,
-        labelAr: 'المكافآت',
-        labelEn: 'Rewards',
+        icon: Icons.local_offer_outlined,
+        activeIcon: Icons.local_offer,
+        labelAr: 'العروض',
+        labelEn: 'Offers',
       ),
       _NavItem(
         icon: Icons.card_giftcard_outlined,
         activeIcon: Icons.card_giftcard,
-        labelAr: 'المزايا',
-        labelEn: 'Benefits',
+        labelAr: 'المكافآت',
+        labelEn: 'Rewards',
       ),
       _NavItem(
         icon: Icons.person_outline,

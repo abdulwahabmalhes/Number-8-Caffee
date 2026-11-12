@@ -5,6 +5,7 @@ import 'package:frontend/screens/menu_screen.dart';
 import 'package:frontend/screens/cart_screen.dart';
 import 'package:frontend/screens/orders_history_screen.dart';
 import 'package:frontend/screens/profile_screen.dart';
+import 'package:frontend/widgets/n8_drawer.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -27,6 +28,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const N8Drawer(),
       body: _pages[_currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -99,9 +101,11 @@ class HomeTab extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.menu),
-                  onPressed: () {},
+                Builder(
+                  builder: (ctx) => IconButton(
+                    icon: const Icon(Icons.menu),
+                    onPressed: () => Scaffold.of(ctx).openDrawer(),
+                  ),
                 ),
                 Row(
                   children: [

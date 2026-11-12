@@ -13,6 +13,60 @@ import 'orders_history_screen.dart';
 import 'loyalty_tier_screen.dart';
 import 'loyalty_punch_screen.dart';
 import 'profile_screen.dart';
+import '../widgets/n8_drawer.dart';
+
+class OptionItemModel {
+  final int id;
+  final String nameAr;
+  final String nameEn;
+  final double additionalPrice;
+
+  const OptionItemModel({
+    required this.id,
+    required this.nameAr,
+    required this.nameEn,
+    required this.additionalPrice,
+  });
+
+  factory OptionItemModel.fromJson(Map<String, dynamic> json) {
+    return OptionItemModel(
+      id: json['id'] is int ? json['id'] : int.tryParse(json['id'].toString()) ?? 0,
+      nameAr: json['name_ar'] ?? '',
+      nameEn: json['name_en'] ?? '',
+      additionalPrice: double.tryParse(json['additional_price']?.toString() ?? '0') ?? 0.0,
+    );
+  }
+}
+
+class OptionGroupModel {
+  final int id;
+  final String nameAr;
+  final String nameEn;
+  final bool isMultiple;
+  final bool isRequired;
+  final List<OptionItemModel> options;
+
+  const OptionGroupModel({
+    required this.id,
+    required this.nameAr,
+    required this.nameEn,
+    required this.isMultiple,
+    required this.isRequired,
+    required this.options,
+  });
+
+  factory OptionGroupModel.fromJson(Map<String, dynamic> json) {
+    final rawOptions = json['options'] as List<dynamic>? ?? [];
+    return OptionGroupModel(
+      id: json['id'] is int ? json['id'] : int.tryParse(json['id'].toString()) ?? 0,
+      nameAr: json['name_ar'] ?? '',
+      nameEn: json['name_en'] ?? '',
+      isMultiple: json['is_multiple'] == true || json['is_multiple'] == 1 || json['is_multiple'] == '1',
+      isRequired: json['is_required'] == true || json['is_required'] == 1 || json['is_required'] == '1',
+      options: rawOptions.map((o) => OptionItemModel.fromJson(o as Map<String, dynamic>)).toList(),
+    );
+  }
+}
 
 class MenuItemModel {
   final int id;
@@ -23,6 +77,7 @@ class MenuItemModel {
   final double price;
   final String category;
   final String imageUrl;
+  final List<OptionGroupModel> optionGroups;
 
   const MenuItemModel({
     required this.id,
@@ -33,6 +88,7 @@ class MenuItemModel {
     required this.price,
     required this.category,
     required this.imageUrl,
+    this.optionGroups = const [],
   });
 }
 
@@ -51,6 +107,7 @@ class MenuScreen extends ConsumerStatefulWidget {
 }
 
 class _MenuScreenState extends ConsumerState<MenuScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedCategoryIndex = 0;
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
@@ -79,6 +136,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
             nameAr: item.nameAr,
             price: item.price,
             quantity: 1,
+            image: item.imageUrl,
           ),
         );
 
@@ -192,6 +250,13 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                 }
               }
 
+              List<OptionGroupModel> parsedOptionGroups = [];
+              if (prod['option_groups'] != null && prod['option_groups'] is List) {
+                parsedOptionGroups = (prod['option_groups'] as List)
+                    .map((og) => OptionGroupModel.fromJson(og as Map<String, dynamic>))
+                    .toList();
+              }
+
               productsList.add(MenuItemModel(
                 id: prod['id'],
                 nameEn: prod['name_en'] ?? '',
@@ -201,6 +266,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                 price: double.tryParse(prod['price'].toString()) ?? 0.0,
                 category: catAr, // Use Arabic category name as identifier
                 imageUrl: finalImg,
+                optionGroups: parsedOptionGroups,
               ));
             }
           }
@@ -223,6 +289,8 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
         return Directionality(
           textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
           child: Scaffold(
+            key: _scaffoldKey,
+            drawer: const N8Drawer(),
             backgroundColor: AppColors.background,
             body: SafeArea(
               child: Column(
@@ -279,7 +347,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                           ),
                           child: IconButton(
                             icon: const Icon(Icons.menu, color: AppColors.primaryBlack, size: 22),
-                            onPressed: () {},
+                            onPressed: () => _scaffoldKey.currentState?.openDrawer(),
                           ),
                         ),
                       ],

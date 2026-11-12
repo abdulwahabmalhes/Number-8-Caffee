@@ -52,6 +52,13 @@ Route::prefix('manager')->middleware(['auth', AdminOnlyMiddleware::class])->grou
     // Category Management
     Route::post('/categories', [ManagerController::class, 'storeCategory']);
     
+    // Product Options & Add-ons Management
+    Route::post('/option-groups', [ManagerController::class, 'storeOptionGroup']);
+    Route::post('/option-groups/{id}/delete', [ManagerController::class, 'deleteOptionGroup']);
+    Route::post('/option-groups/{groupId}/options', [ManagerController::class, 'storeOption']);
+    Route::post('/options/{id}/delete', [ManagerController::class, 'deleteOption']);
+    Route::post('/options/{id}/toggle', [ManagerController::class, 'toggleOption']);
+
     // Table QR Management & Printouts
     Route::post('/tables', [ManagerController::class, 'storeTable']);
     Route::post('/tables/{id}/delete', [ManagerController::class, 'deleteTable']);

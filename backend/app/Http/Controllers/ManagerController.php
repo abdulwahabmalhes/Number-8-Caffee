@@ -23,7 +23,8 @@ class ManagerController extends Controller
         $pickupOrdersCount = $todayOrders->where('order_type', 'pickup')->count();
 
         $tables = Table::where('is_active', true)->orderBy('table_number')->get();
-        $categories = Category::with('products')->where('is_active', true)->orderBy('sort_order')->get();
+        $categories = Category::with(['products.optionGroups'])->where('is_active', true)->orderBy('sort_order')->get();
+        $optionGroups = \App\Models\OptionGroup::with('options')->get();
         $recentOrders = Order::with(['items.product', 'table', 'vehicle'])->orderBy('created_at', 'desc')->take(20)->get();
 
         return view('manager.dashboard', compact(
@@ -34,6 +35,7 @@ class ManagerController extends Controller
             'pickupOrdersCount',
             'tables',
             'categories',
+            'optionGroups',
             'recentOrders'
         ));
     }
@@ -121,6 +123,10 @@ class ManagerController extends Controller
             'sort_order' => Product::count() + 1,
         ]);
 
+        if ($request->has('option_groups')) {
+            $product->optionGroups()->sync($request->option_groups);
+        }
+
         return redirect()->back()->with('success', 'تمت إضافة المنتج الجديد بنجاح');
     }
 
@@ -156,7 +162,81 @@ class ManagerController extends Controller
             'image' => $imagePath,
         ]);
 
+        if ($request->has('option_groups')) {
+            $product->optionGroups()->sync($request->option_groups);
+        } else {
+            $product->optionGroups()->detach();
+        }
+
         return redirect()->back()->with('success', 'تم تعديل بيانات المنتج بنجاح');
+    }
+
+    // Store Option Group
+    public function storeOptionGroup(Request $request)
+    {
+        $request->validate([
+            'name_ar' => 'required|string|max:255',
+            'name_en' => 'required|string|max:255',
+            'is_multiple' => 'nullable|boolean',
+            'is_required' => 'nullable|boolean',
+        ]);
+
+        \App\Models\OptionGroup::create([
+            'name_ar' => $request->name_ar,
+            'name_en' => $request->name_en,
+            'is_multiple' => $request->has('is_multiple') ? (bool)$request->is_multiple : false,
+            'is_required' => $request->has('is_required') ? (bool)$request->is_required : false,
+            'min_choices' => 0,
+            'max_choices' => $request->has('is_multiple') ? 10 : 1,
+        ]);
+
+        return redirect()->back()->with('success', 'تمت إضافة مجموعة الخيارات بنجاح / Option group created');
+    }
+
+    // Delete Option Group
+    public function deleteOptionGroup($id)
+    {
+        $group = \App\Models\OptionGroup::findOrFail($id);
+        $group->delete();
+        return redirect()->back()->with('success', 'تم حذف مجموعة الخيارات بنجاح / Option group deleted');
+    }
+
+    // Store Option within Group
+    public function storeOption(Request $request, $groupId)
+    {
+        $request->validate([
+            'name_ar' => 'required|string|max:255',
+            'name_en' => 'required|string|max:255',
+            'additional_price' => 'required|numeric|min:0',
+        ]);
+
+        $group = \App\Models\OptionGroup::findOrFail($groupId);
+        \App\Models\Option::create([
+            'option_group_id' => $group->id,
+            'name_ar' => $request->name_ar,
+            'name_en' => $request->name_en,
+            'additional_price' => $request->additional_price,
+            'is_available' => true,
+        ]);
+
+        return redirect()->back()->with('success', 'تمت إضافة الخيار بنجاح / Option added');
+    }
+
+    // Delete Option
+    public function deleteOption($id)
+    {
+        $option = \App\Models\Option::findOrFail($id);
+        $option->delete();
+        return redirect()->back()->with('success', 'تم حذف الخيار بنجاح / Option deleted');
+    }
+
+    // Toggle Option Availability
+    public function toggleOption($id)
+    {
+        $option = \App\Models\Option::findOrFail($id);
+        $option->is_available = !$option->is_available;
+        $option->save();
+        return redirect()->back()->with('success', 'تم تحديث حالة توفر الخيار / Status updated');
     }
 
     // Delete product

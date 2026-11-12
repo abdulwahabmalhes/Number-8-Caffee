@@ -441,6 +441,56 @@
                         @endforeach
                     </div>
                 </div>
+
+                <!-- Product Add-ons & Customization Options Management -->
+                <div class="section-card" style="margin-top: 20px;">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">إضافات وخيارات المنتجات (Add-ons)</h2>
+                            <p style="font-size: 12px; color: var(--secondary);">أنواع البن، درجة الحرارة، الحليب، التوبينج</p>
+                        </div>
+                        <button onclick="openAddOptionGroupModal()" class="btn btn-primary" style="padding: 6px 12px;">+ مجموعة</button>
+                    </div>
+
+                    <div style="max-height: 480px; overflow-y: auto;">
+                        @forelse($optionGroups as $og)
+                            <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 12px; margin-bottom: 12px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <div>
+                                        <div style="font-weight: 800; font-size: 14px;">{{ $og->name_en }} / {{ $og->name_ar }}</div>
+                                        <div style="font-size: 11px; color: var(--secondary);">
+                                            {{ $og->is_multiple ? 'اختيار متعدد (Multiple)' : 'اختيار فردي (Single)' }} 
+                                            • {{ $og->is_required ? 'إجباري (Required)' : 'اختياري (Optional)' }}
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 6px;">
+                                        <button onclick="openAddOptionModal({{ $og->id }}, '{{ addslashes($og->name_en) }}')" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;">+ خيار</button>
+                                        <form action="/manager/option-groups/{{ $og->id }}/delete" method="POST" onsubmit="return confirm('حذف مجموعة الخيارات هذه بالكامل؟');" style="margin: 0;">
+                                            @csrf
+                                            <button type="submit" class="btn btn-danger" style="padding: 4px 6px; font-size: 11px;">×</button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- Options Pills -->
+                                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                    @foreach($og->options as $opt)
+                                        <span style="display: inline-flex; align-items: center; gap: 6px; background: #FFFFFF; border: 1px solid var(--border); padding: 4px 10px; border-radius: 20px; font-size: 12px;">
+                                            <span>{{ $opt->name_en }} ({{ $opt->name_ar }})</span>
+                                            <strong style="color: var(--gold); font-family: 'DM Sans', sans-serif;">{{ $opt->additional_price > 0 ? '+'.$opt->additional_price.' AED' : 'Free' }}</strong>
+                                            <form action="/manager/options/{{ $opt->id }}/delete" method="POST" onsubmit="return confirm('حذف هذا الخيار؟');" style="display: inline; margin: 0;">
+                                                @csrf
+                                                <button type="submit" style="background: none; border: none; color: var(--red); font-weight: bold; cursor: pointer; padding: 0 2px;">×</button>
+                                            </form>
+                                        </span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @empty
+                            <div style="text-align: center; color: var(--secondary); padding: 20px;">لا توجد مجموعات خيارات مضافة بعد</div>
+                        @endforelse
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -482,6 +532,19 @@
                     <label style="font-size: 12px; color: var(--secondary);" data-i18n="label_image_url">أو رابط صورة خارجي (اختياري)</label>
                     <input type="url" name="image_url" class="form-control" placeholder="https://...">
                 </div>
+
+                <div class="form-group" style="margin-top: 14px;">
+                    <label style="font-weight: 700;">خيارات وإضافات المنتج (Add-on Groups)</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; max-height: 140px; overflow-y: auto; padding: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;">
+                        @foreach($optionGroups as $og)
+                            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+                                <input type="checkbox" name="option_groups[]" value="{{ $og->id }}">
+                                <span>{{ $og->name_en }} ({{ $og->name_ar }})</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+
                 <div style="display: flex; gap: 10px; margin-top: 24px;">
                     <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center; padding: 12px;" data-i18n="btn_save_product">حفظ المنتج</button>
                     <button type="button" onclick="closeModals()" class="btn btn-secondary" style="padding: 12px 20px;" data-i18n="cancel">إلغاء</button>
@@ -527,6 +590,19 @@
                     <label style="font-size: 12px; color: var(--secondary);" data-i18n="label_image_url">أو رابط صورة (اختياري)</label>
                     <input type="url" id="edit_image_url" name="image_url" class="form-control">
                 </div>
+
+                <div class="form-group" style="margin-top: 14px;">
+                    <label style="font-weight: 700;">خيارات وإضافات المنتج (Add-on Groups)</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; max-height: 140px; overflow-y: auto; padding: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;">
+                        @foreach($optionGroups as $og)
+                            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+                                <input type="checkbox" name="option_groups[]" value="{{ $og->id }}" class="edit-og-checkbox" id="edit_og_{{ $og->id }}">
+                                <span>{{ $og->name_en }} ({{ $og->name_ar }})</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+
                 <div style="display: flex; gap: 10px; margin-top: 24px;">
                     <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center; padding: 12px;" data-i18n="btn_update_product">تحديث التعديلات</button>
                     <button type="button" onclick="closeModals()" class="btn btn-secondary" style="padding: 12px 20px;" data-i18n="cancel">إلغاء</button>
@@ -576,6 +652,67 @@
         </div>
     </div>
 
+    <!-- Modal 5: Add Option Group -->
+    <div class="modal-overlay" id="addOptionGroupModal">
+        <div class="modal-box">
+            <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 18px;">إضافة مجموعة خيارات جديدة</h3>
+            <form action="/manager/option-groups" method="POST">
+                @csrf
+                <div class="form-group">
+                    <label>اسم المجموعة بالعربية</label>
+                    <input type="text" name="name_ar" class="form-control" placeholder="مثال: اختيار نوع الحليب" required>
+                </div>
+                <div class="form-group">
+                    <label>اسم المجموعة بالإنجليزية</label>
+                    <input type="text" name="name_en" class="form-control" placeholder="e.g. Milk Choice" required>
+                </div>
+                <div style="display: flex; gap: 20px; margin-top: 15px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" name="is_multiple" value="1">
+                        <span>اختيار متعدد (Multiple Choice)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" name="is_required" value="1">
+                        <span>إجباري للاختيار (Required)</span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 24px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center; padding: 12px;">حفظ المجموعة</button>
+                    <button type="button" onclick="closeModals()" class="btn btn-secondary" style="padding: 12px 20px;">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 6: Add Option to Group -->
+    <div class="modal-overlay" id="addOptionModal">
+        <div class="modal-box">
+            <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 18px;">
+                إضافة خيار إلى: <span id="modal_og_title" style="color: var(--gold);"></span>
+            </h3>
+            <form action="/manager/options" method="POST">
+                @csrf
+                <input type="hidden" name="option_group_id" id="modal_og_id">
+                <div class="form-group">
+                    <label>اسم الخيار بالعربية</label>
+                    <input type="text" name="name_ar" class="form-control" placeholder="مثال: حليب لوز / كولومبي" required>
+                </div>
+                <div class="form-group">
+                    <label>اسم الخيار بالإنجليزية</label>
+                    <input type="text" name="name_en" class="form-control" placeholder="e.g. Almond Milk / Colombian" required>
+                </div>
+                <div class="form-group">
+                    <label>سعر إضافي (AED - 0 إذا مجاني)</label>
+                    <input type="number" step="0.5" name="additional_price" class="form-control" value="0" required>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 24px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center; padding: 12px;">إضافة الخيار</button>
+                    <button type="button" onclick="closeModals()" class="btn btn-secondary" style="padding: 12px 20px;">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Master Localization Engine Script -->
     <script src="/js/n8-i18n.js"></script>
 
@@ -583,6 +720,12 @@
         function openAddProductModal() { document.getElementById('addProductModal').style.display = 'flex'; }
         function openAddTableModal() { document.getElementById('addTableModal').style.display = 'flex'; }
         function openAddCategoryModal() { document.getElementById('addCategoryModal').style.display = 'flex'; }
+        function openAddOptionGroupModal() { document.getElementById('addOptionGroupModal').style.display = 'flex'; }
+        function openAddOptionModal(groupId, groupName) {
+            document.getElementById('modal_og_id').value = groupId;
+            document.getElementById('modal_og_title').textContent = groupName;
+            document.getElementById('addOptionModal').style.display = 'flex';
+        }
         function closeModals() {
             document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
         }
@@ -612,6 +755,16 @@
                 document.getElementById('edit_preview_container').style.display = 'block';
             } else {
                 document.getElementById('edit_preview_container').style.display = 'none';
+            }
+
+            // Uncheck all option group checkboxes
+            document.querySelectorAll('.edit-og-checkbox').forEach(cb => cb.checked = false);
+            // Check attached option groups
+            if (product.option_groups && Array.isArray(product.option_groups)) {
+                product.option_groups.forEach(og => {
+                    const cb = document.getElementById('edit_og_' + og.id);
+                    if (cb) cb.checked = true;
+                });
             }
             
             document.getElementById('editProductModal').style.display = 'flex';

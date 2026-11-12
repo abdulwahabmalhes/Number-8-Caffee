@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../core/theme.dart';
 import '../providers/locale_provider.dart';
 import '../core/api_client.dart';
 import '../providers/auth_provider.dart';
-import '../widgets/n8_popup.dart';
 import 'main_screen.dart';
+
 class PhoneAuthScreen extends ConsumerStatefulWidget {
   const PhoneAuthScreen({super.key});
 
@@ -17,12 +18,45 @@ class PhoneAuthScreen extends ConsumerStatefulWidget {
 class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
   final _phoneController = TextEditingController();
   final _nameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _rememberMe = true;
   bool _isLoading = false;
   String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    final rem = prefs.getBool('remember_me') ?? true;
+    final savedPhone = prefs.getString('saved_login_phone') ?? '';
+    final savedName = prefs.getString('saved_login_name') ?? '';
+    if (mounted) {
+      setState(() {
+        _rememberMe = rem;
+        if (savedPhone.isNotEmpty) _phoneController.text = savedPhone;
+        if (savedName.isNotEmpty) _nameController.text = savedName;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    _nameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   Future<void> _login() async {
     final phone = _phoneController.text.trim();
     final name = _nameController.text.trim();
+    final password = _passwordController.text.trim();
+
     if (phone.isEmpty || phone.length < 9) {
       setState(() => _errorMessage = 'Please enter a valid phone number');
       return;
@@ -38,17 +72,33 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
     });
 
     try {
-      final res = await ApiClient.instance.post('/auth/login', data: {
+      final payload = {
         'phone': phone,
         'name': name,
-      });
+      };
+      if (password.isNotEmpty) {
+        payload['password'] = password;
+      }
+
+      final res = await ApiClient.instance.post('/auth/login', data: payload);
 
       if (res.data['success']) {
         final token = res.data['token'];
         final user = res.data['customer'];
-        
+
+        final prefs = await SharedPreferences.getInstance();
+        if (_rememberMe) {
+          await prefs.setBool('remember_me', true);
+          await prefs.setString('saved_login_phone', phone);
+          await prefs.setString('saved_login_name', name);
+        } else {
+          await prefs.setBool('remember_me', false);
+          await prefs.remove('saved_login_phone');
+          await prefs.remove('saved_login_name');
+        }
+
         await ref.read(authProvider.notifier).login(token, user);
-        
+
         if (!mounted) return;
         Navigator.pushAndRemoveUntil(
           context,
@@ -59,7 +109,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
         setState(() => _errorMessage = res.data['message']);
       }
     } catch (e) {
-      setState(() => _errorMessage = 'Network error occurred');
+      setState(() => _errorMessage = 'Network error or invalid password');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -97,7 +147,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                         Text(
                           isArabic ? 'تسجيل الدخول / حساب جديد' : 'Login / Register',
                           style: GoogleFonts.tajawal(
-                            fontSize: 28,
+                            fontSize: 26,
                             fontWeight: FontWeight.w800,
                             color: AppColors.primaryBlack,
                           ),
@@ -105,16 +155,16 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                         const SizedBox(height: 8),
                         Text(
                           isArabic
-                              ? 'أدخل رقم هاتفك لتسجيل الدخول أو إنشاء حساب جديد.'
-                              : 'Enter your phone number to login or register.',
+                              ? 'سجل دخولك برقم الهاتف لحفظ طلباتك وسياراتك ونقاط الولاء.'
+                              : 'Enter your details to track orders, cars and loyalty points.',
                           style: GoogleFonts.tajawal(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w400,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
                             color: AppColors.secondaryText,
                           ),
                         ),
-                        const SizedBox(height: 32),
-                        
+                        const SizedBox(height: 28),
+
                         // Name Field
                         Container(
                           decoration: BoxDecoration(
@@ -125,16 +175,17 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                           child: TextField(
                             controller: _nameController,
                             keyboardType: TextInputType.name,
-                            style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w500),
+                            style: GoogleFonts.tajawal(fontSize: 15, fontWeight: FontWeight.w600),
                             decoration: InputDecoration(
                               border: InputBorder.none,
-                              hintText: isArabic ? 'الاسم' : 'Name',
+                              hintText: isArabic ? 'الاسم الكامل' : 'Full Name',
+                              prefixIcon: const Icon(Icons.person_outline, color: AppColors.secondaryText),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                             ),
                           ),
                         ),
-                        
-                        const SizedBox(height: 16),
+
+                        const SizedBox(height: 14),
 
                         // Phone Field
                         Container(
@@ -146,11 +197,11 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                           child: Row(
                             children: [
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                padding: const EdgeInsets.symmetric(horizontal: 14),
                                 child: Text(
                                   '+971',
                                   style: GoogleFonts.dmSans(
-                                    fontSize: 16,
+                                    fontSize: 15,
                                     fontWeight: FontWeight.w700,
                                     color: AppColors.primaryBlack,
                                   ),
@@ -161,26 +212,80 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                                 child: TextField(
                                   controller: _phoneController,
                                   keyboardType: TextInputType.phone,
-                                  style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w500),
+                                  style: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w600),
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
-                                    hintText: isArabic ? '5X XXX XXXX' : '5X XXX XXXX',
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                    hintText: '5X XXX XXXX',
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
                                   ),
                                 ),
                               ),
                             ],
                           ),
                         ),
+
+                        const SizedBox(height: 14),
+
+                        // Optional Password Field
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppColors.lightBorder),
+                          ),
+                          child: TextField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            style: GoogleFonts.dmSans(fontSize: 15, fontWeight: FontWeight.w600),
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: isArabic ? 'كلمة المرور / PIN (اختياري)' : 'Password / PIN (Optional)',
+                              prefixIcon: const Icon(Icons.lock_outline, color: AppColors.secondaryText),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                                  color: AppColors.secondaryText,
+                                  size: 20,
+                                ),
+                                onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        // Remember Me Checkbox
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _rememberMe,
+                              activeColor: AppColors.primaryBlack,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                              onChanged: (val) => setState(() => _rememberMe = val ?? true),
+                            ),
+                            GestureDetector(
+                              onTap: () => setState(() => _rememberMe = !_rememberMe),
+                              child: Text(
+                                isArabic ? 'تذكر بيانات تسجيل الدخول' : 'Remember me on this device',
+                                style: GoogleFonts.tajawal(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primaryBlack),
+                              ),
+                            ),
+                          ],
+                        ),
+
                         if (_errorMessage != null) ...[
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           Text(
                             _errorMessage!,
-                            style: GoogleFonts.tajawal(color: Colors.red, fontSize: 13),
+                            style: GoogleFonts.tajawal(color: Colors.red[800], fontSize: 13, fontWeight: FontWeight.w600),
                           ),
                         ],
+
                         const Spacer(),
                         const SizedBox(height: 24),
+
                         ElevatedButton(
                           onPressed: _isLoading ? null : _login,
                           style: ElevatedButton.styleFrom(
@@ -192,8 +297,8 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                           child: _isLoading
                               ? const CircularProgressIndicator(color: Colors.white)
                               : Text(
-                                  isArabic ? 'متابعة' : 'Continue',
-                                  style: GoogleFonts.tajawal(fontSize: 16, fontWeight: FontWeight.w700),
+                                  isArabic ? 'دخول / متابعة ➔' : 'Continue ➔',
+                                  style: GoogleFonts.tajawal(fontSize: 16, fontWeight: FontWeight.w800),
                                 ),
                         ),
                       ],

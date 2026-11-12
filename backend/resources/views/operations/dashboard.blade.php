@@ -443,10 +443,10 @@
                         <div class="vehicle-box">
                             <div>
                                 <strong><span data-i18n="plate">اللوحة:</span></strong> 
-                                <span style="font-family: 'DM Sans', sans-serif;">{{ $order->vehicle ? $order->vehicle->plate_number : '12345 أ ب' }}</span>
+                                <span style="font-family: 'DM Sans', sans-serif;">{{ $order->vehicle ? $order->vehicle->plate_number : '-' }}</span>
                             </div>
                             <div style="font-size: 11px; color: var(--secondary); margin-top: 2px;">
-                                {{ $order->vehicle ? $order->vehicle->vehicle_model . ' • ' . $order->vehicle->vehicle_color : 'Mercedes G63 • Black' }}
+                                {{ $order->vehicle ? ($order->vehicle->vehicle_model . ' • ' . $order->vehicle->vehicle_color) : '-' }}
                             </div>
                             @if($order->customer_arrived_at)
                                 <div style="color: var(--green); font-weight: 800; margin-top: 6px;" data-i18n="customer_arrived">
@@ -487,6 +487,13 @@
                                             @endif
                                         </span>
                                     </div>
+                                    @if($item->options && $item->options->count() > 0)
+                                        <div style="font-size: 11px; color: #9A7B4F; font-weight: 700; margin-top: 2px;">
+                                            @foreach($item->options as $opt)
+                                                <span>• {{ $opt->option ? ($currentLang === 'en' ? $opt->option->name_en : $opt->option->name_ar) : '' }}</span>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                     @if($item->special_instructions)
                                         <div class="item-notes">{{ $item->special_instructions }}</div>
                                     @endif

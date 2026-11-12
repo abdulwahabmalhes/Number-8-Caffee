@@ -31,7 +31,19 @@ class OrderController extends Controller
             // First pass to calculate total
             foreach ($request->items as $item) {
                 $product = \App\Models\Product::find($item['product_id']);
-                $totalAmount += $product->price * $item['quantity'];
+                $itemBase = (float) ($product ? $product->price : 0);
+                if (!empty($item['options'])) {
+                    foreach ($item['options'] as $opt) {
+                        $optId = is_array($opt) ? ($opt['id'] ?? null) : $opt;
+                        if ($optId) {
+                            $optModel = \App\Models\Option::find($optId);
+                            if ($optModel) {
+                                $itemBase += (float) $optModel->additional_price;
+                            }
+                        }
+                    }
+                }
+                $totalAmount += $itemBase * $item['quantity'];
             }
 
             $vehicleId = null;
@@ -75,14 +87,37 @@ class OrderController extends Controller
 
             foreach ($request->items as $item) {
                 $product = \App\Models\Product::find($item['product_id']);
-                OrderItem::create([
+                $itemBase = (float) ($product ? $product->price : 0);
+                $optionsToAttach = [];
+                if (!empty($item['options'])) {
+                    foreach ($item['options'] as $opt) {
+                        $optId = is_array($opt) ? ($opt['id'] ?? null) : $opt;
+                        if ($optId) {
+                            $optModel = \App\Models\Option::find($optId);
+                            if ($optModel) {
+                                $itemBase += (float) $optModel->additional_price;
+                                $optionsToAttach[] = $optModel;
+                            }
+                        }
+                    }
+                }
+
+                $orderItem = OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $product->id,
                     'quantity' => $item['quantity'],
-                    'unit_price' => $product->price,
-                    'total_price' => $product->price * $item['quantity'],
+                    'unit_price' => $itemBase,
+                    'total_price' => $itemBase * $item['quantity'],
                     'special_instructions' => $item['special_instructions'] ?? null,
                 ]);
+
+                foreach ($optionsToAttach as $optModel) {
+                    \App\Models\OrderItemOption::create([
+                        'order_item_id' => $orderItem->id,
+                        'option_id' => $optModel->id,
+                        'price' => $optModel->additional_price,
+                    ]);
+                }
             }
 
             // Dispatch event for WebSockets
@@ -102,7 +137,10 @@ class OrderController extends Controller
 
     public function status($order_number)
     {
-        $order = Order::where('order_number', $order_number)->first();
+        $order = Order::with(['items.product', 'items.options.option', 'table', 'vehicle'])
+            ->where('order_number', $order_number)
+            ->first();
+
         if (!$order) {
             return response()->json(['success' => false, 'message' => 'Order not found'], 404);
         }
@@ -112,6 +150,7 @@ class OrderController extends Controller
             'status' => $order->status,
             'payment_status' => $order->payment_status,
             'payment_method' => $order->payment_method,
+            'order' => $order,
         ]);
     }
 
@@ -126,7 +165,7 @@ class OrderController extends Controller
         }
 
         // Fetch orders for this customer (excluding unpaid abandoned checkouts)
-        $orders = Order::with(['items.product'])
+        $orders = Order::with(['items.product', 'items.options.option', 'table', 'vehicle'])
             ->where('customer_id', $user->id)
             ->where('status', '!=', 'payment_pending')
             ->orderBy('created_at', 'desc')

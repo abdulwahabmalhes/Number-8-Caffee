@@ -266,6 +266,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
           'product_id': item.productId,
           'quantity': item.quantity,
           'special_instructions': item.specialInstructions ?? '',
+          'options': item.selectedOptions.map((o) => o.id).toList(),
         }).toList();
 
         final payload = {
@@ -331,6 +332,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
         'product_id': item.productId,
         'quantity': item.quantity,
         'special_instructions': item.specialInstructions ?? '',
+        'options': item.selectedOptions.map((o) => o.id).toList(),
       }).toList();
 
       final payload = {

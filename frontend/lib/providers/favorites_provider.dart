@@ -50,27 +50,11 @@ class FavoritesNotifier extends StateNotifier<List<FavoriteProduct>> {
       try {
         final List list = jsonDecode(favStr);
         state = list.map((e) => FavoriteProduct.fromJson(e)).toList();
-      } catch (_) {}
+      } catch (_) {
+        state = [];
+      }
     } else {
-      // Default sample favorite items
-      state = [
-        FavoriteProduct(
-          id: 1,
-          nameAr: 'سبانش لاتيه بارد',
-          nameEn: 'Iced Spanish Latte',
-          price: 26.0,
-          image: 'assets/images/intro_brew.jpg',
-          category: 'قهوة باردة',
-        ),
-        FavoriteProduct(
-          id: 2,
-          nameAr: 'فلات وايت',
-          nameEn: 'Flat White',
-          price: 22.0,
-          image: 'assets/images/intro_table.jpg',
-          category: 'قهوة ساخنة',
-        ),
-      ];
+      state = [];
     }
   }
 

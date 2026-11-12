@@ -12,18 +12,38 @@ class CustomerAuthController extends Controller
     {
         $request->validate([
             'phone' => 'required|string',
-            'name' => 'required|string',
+            'name' => 'nullable|string',
+            'password' => 'nullable|string|min:4',
         ]);
 
-        $customer = Customer::firstOrCreate(
-            ['phone' => $request->phone],
-            ['name' => $request->name]
-        );
+        $phone = preg_replace('/[^0-9+]/', '', $request->phone);
+        $customer = Customer::where('phone', $phone)->orWhere('phone', $request->phone)->first();
 
-        // Update name if they entered a new one
-        if ($customer->name !== $request->name) {
-            $customer->name = $request->name;
+        if ($customer) {
+            // If customer has a password, verify it
+            if (!empty($customer->password) && $request->filled('password')) {
+                if (!\Illuminate\Support\Facades\Hash::check($request->password, $customer->password) && $customer->password !== $request->password) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'كلمة المرور غير صحيحة / Incorrect password'
+                    ], 422);
+                }
+            } elseif (empty($customer->password) && $request->filled('password')) {
+                // Set password on first setup
+                $customer->password = \Illuminate\Support\Facades\Hash::make($request->password);
+            }
+
+            if ($request->filled('name') && $customer->name !== $request->name) {
+                $customer->name = $request->name;
+            }
             $customer->save();
+        } else {
+            // Create new customer
+            $customer = Customer::create([
+                'phone' => $phone ?: $request->phone,
+                'name' => $request->name ?: 'Customer',
+                'password' => $request->filled('password') ? \Illuminate\Support\Facades\Hash::make($request->password) : null,
+            ]);
         }
 
         // Generate token
@@ -37,6 +57,7 @@ class CustomerAuthController extends Controller
                 'id' => $customer->id,
                 'name' => $customer->name,
                 'phone' => $customer->phone,
+                'has_password' => !empty($customer->password),
             ]
         ]);
     }

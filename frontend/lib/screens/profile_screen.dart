@@ -160,14 +160,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
                       const SizedBox(height: 28),
 
-                      // 4-Card Quick Actions Grid
+                      // 3-Card Quick Actions Grid (Orders, Favorites, Vehicles - Addresses removed)
                       GridView.count(
-                        crossAxisCount: 2,
+                        crossAxisCount: 3,
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: 1.4,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        childAspectRatio: 0.95,
                         children: [
                           // 1. My Orders
                           _buildGridActionCard(
@@ -197,20 +197,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             ),
                           ),
 
-                          // 3. Addresses
-                          _buildGridActionCard(
-                            icon: Icons.location_on_outlined,
-                            title: isArabic ? 'عناويني' : 'Addresses',
-                            subtitle: isArabic
-                                ? '${userData.addresses.length} عناوين'
-                                : '${userData.addresses.length} addresses',
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => const AddressesScreen()),
-                            ),
-                          ),
-
-                          // 4. Vehicles
+                          // 3. Vehicles
                           _buildGridActionCard(
                             icon: Icons.directions_car_outlined,
                             title: isArabic ? 'سياراتي' : 'Vehicles',

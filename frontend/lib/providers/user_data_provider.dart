@@ -96,24 +96,8 @@ class UserDataNotifier extends StateNotifier<UserDataState> {
     final addrStr = prefs.getString('saved_addresses');
     final vehStr = prefs.getString('saved_vehicles');
 
-    List<AddressItem> addresses = [
-      AddressItem(
-        id: '1',
-        title: 'المنزل',
-        details: 'أبوظبي، البطين، شارع المرجان، فيلا 12',
-        isDefault: true,
-      ),
-    ];
-
-    List<VehicleItem> vehicles = [
-      VehicleItem(
-        id: '1',
-        plateNumber: '12345',
-        plateEmirate: 'أبوظبي',
-        model: 'مرسيدس G63',
-        color: 'أسود',
-      ),
-    ];
+    List<AddressItem> addresses = [];
+    List<VehicleItem> vehicles = [];
 
     if (addrStr != null) {
       try {

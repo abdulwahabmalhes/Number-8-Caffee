@@ -8,7 +8,7 @@ import '../providers/session_provider.dart';
 import '../widgets/n8_bottom_nav.dart';
 import 'menu_screen.dart';
 import 'orders_history_screen.dart';
-import 'loyalty_tier_screen.dart';
+import 'offers_screen.dart';
 import 'loyalty_punch_screen.dart';
 import 'profile_screen.dart';
 import 'qr_scanner_screen.dart';
@@ -22,7 +22,7 @@ class TableQrScreen extends ConsumerStatefulWidget {
 
 class _TableQrScreenState extends ConsumerState<TableQrScreen> with SingleTickerProviderStateMixin {
   late AnimationController _animController;
-  final TextEditingController _tableInputController = TextEditingController(text: '8');
+  final TextEditingController _tableInputController = TextEditingController();
   bool _isLoading = false;
   int _currentNavIndex = 0;
 
@@ -198,7 +198,38 @@ class _TableQrScreenState extends ConsumerState<TableQrScreen> with SingleTicker
                               textAlign: TextAlign.center,
                             ),
 
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 18),
+
+                            // Prominent Action Button: Scan Table QR with Camera
+                            ElevatedButton.icon(
+                              onPressed: () async {
+                                final resultToken = await Navigator.push<String>(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const QrScannerScreen()),
+                                );
+                                if (resultToken != null && resultToken.isNotEmpty) {
+                                  _validateAndProceedWithToken(resultToken);
+                                }
+                              },
+                              icon: const Icon(Icons.qr_code_scanner_rounded, size: 22, color: Colors.white),
+                              label: Text(
+                                isArabic ? '📷 فتح الكاميرا لمسح كود الطاولة' : '📷 Open Camera to Scan QR',
+                                style: GoogleFonts.tajawal(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primaryBlack,
+                                minimumSize: const Size(double.infinity, 52),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 20),
 
                             // QR Scanner Box with animated scan line
                             GestureDetector(
@@ -212,8 +243,8 @@ class _TableQrScreenState extends ConsumerState<TableQrScreen> with SingleTicker
                                 }
                               },
                               child: Container(
-                                width: 200,
-                                height: 200,
+                                width: 180,
+                                height: 180,
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFFAF9F6),
                                   borderRadius: BorderRadius.circular(16),
@@ -225,12 +256,12 @@ class _TableQrScreenState extends ConsumerState<TableQrScreen> with SingleTicker
                                     // Vector QR code mock
                                     Image.network(
                                       'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=N8-TABLE-08&color=101010&bgcolor=FAF9F6',
-                                      width: 170,
-                                      height: 170,
+                                      width: 150,
+                                      height: 150,
                                       fit: BoxFit.contain,
                                       errorBuilder: (_, __, ___) => const Icon(
                                         Icons.qr_code_2,
-                                        size: 140,
+                                        size: 130,
                                         color: AppColors.primaryBlack,
                                       ),
                                     ),
@@ -240,7 +271,7 @@ class _TableQrScreenState extends ConsumerState<TableQrScreen> with SingleTicker
                                       animation: _animController,
                                       builder: (context, child) {
                                         return Positioned(
-                                          top: 10 + (_animController.value * 170),
+                                          top: 10 + (_animController.value * 150),
                                           left: 10,
                                           right: 10,
                                           child: Container(
@@ -264,24 +295,24 @@ class _TableQrScreenState extends ConsumerState<TableQrScreen> with SingleTicker
                               ),
                             ),
 
-                            const SizedBox(height: 28),
+                            const SizedBox(height: 24),
 
                             // Divider text
                             Text(
-                              isArabic ? 'أو أدخل رقم الطاولة يدوياً' : 'Or enter table number manually',
+                              isArabic ? 'أو أدخل رقم أو اسم الطاولة يدوياً' : 'Or enter table number manually',
                               style: GoogleFonts.tajawal(
                                 fontSize: 13,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w600,
                                 color: AppColors.secondaryText,
                               ),
                             ),
 
-                            const SizedBox(height: 14),
+                            const SizedBox(height: 12),
 
                             // Manual input box matching reference
                             Container(
                               width: double.infinity,
-                              height: 58,
+                              height: 56,
                               decoration: BoxDecoration(
                                 color: AppColors.background,
                                 borderRadius: BorderRadius.circular(14),
@@ -291,23 +322,27 @@ class _TableQrScreenState extends ConsumerState<TableQrScreen> with SingleTicker
                               child: TextField(
                                 controller: _tableInputController,
                                 textAlign: TextAlign.center,
-                                keyboardType: TextInputType.number,
                                 style: GoogleFonts.dmSans(
-                                  fontSize: 22,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.primaryBlack,
                                 ),
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
+                                  hintText: isArabic ? 'مثال: 08 أو T-01 أو VIP' : 'e.g. 08 or T-01',
+                                  hintStyle: GoogleFonts.tajawal(
+                                    fontSize: 14,
+                                    color: AppColors.secondaryText.withValues(alpha: 0.6),
+                                  ),
                                   border: InputBorder.none,
                                   enabledBorder: InputBorder.none,
                                   focusedBorder: InputBorder.none,
                                   fillColor: Colors.transparent,
-                                  contentPadding: EdgeInsets.zero,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                                 ),
                               ),
                             ),
 
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 18),
 
                             ElevatedButton(
                               onPressed: _isLoading ? null : () => _validateAndProceed(_tableInputController.text),
@@ -325,7 +360,7 @@ class _TableQrScreenState extends ConsumerState<TableQrScreen> with SingleTicker
                                       child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                                     )
                                   : Text(
-                                      isArabic ? 'تأكيد الطاولة والمتابعة' : 'Confirm Table & Continue',
+                                      isArabic ? 'تأكيد الطاولة والمتابعة للمنيو' : 'Confirm Table & Open Menu',
                                       style: GoogleFonts.tajawal(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w700,
@@ -348,7 +383,7 @@ class _TableQrScreenState extends ConsumerState<TableQrScreen> with SingleTicker
                   } else if (index == 1) {
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const OrdersHistoryScreen()));
                   } else if (index == 2) {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const LoyaltyTierScreen()));
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const OffersScreen()));
                   } else if (index == 3) {
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const LoyaltyPunchScreen()));
                   } else if (index == 4) {

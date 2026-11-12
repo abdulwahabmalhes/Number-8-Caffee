@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/n8_bottom_nav.dart';
 import 'service_selection_screen.dart';
 import 'orders_history_screen.dart';
-import 'loyalty_tier_screen.dart';
+import 'offers_screen.dart';
 import 'loyalty_punch_screen.dart';
 import 'profile_screen.dart';
 
@@ -20,7 +20,7 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   final List<Widget> _pages = [
     const ServiceSelectionScreen(),
     const OrdersHistoryScreen(),
-    const LoyaltyTierScreen(),
+    const OffersScreen(),
     const LoyaltyPunchScreen(),
     const ProfileScreen(),
   ];

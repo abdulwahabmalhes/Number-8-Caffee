@@ -78,15 +78,18 @@ class CartScreen extends ConsumerWidget {
                               children: [
                                 // Thumbnail
                                 Container(
-                                  width: 56,
-                                  height: 56,
+                                  width: 60,
+                                  height: 60,
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(14),
                                     color: AppColors.background,
-                                    image: const DecorationImage(
-                                      image: NetworkImage(
-                                        'https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=300&auto=format&fit=crop',
-                                      ),
+                                    border: Border.all(color: AppColors.lightBorder),
+                                    image: DecorationImage(
+                                      image: item.image.startsWith('http://') || item.image.startsWith('https://')
+                                          ? NetworkImage(item.image) as ImageProvider
+                                          : (item.image.startsWith('assets/')
+                                              ? AssetImage(item.image) as ImageProvider
+                                              : const AssetImage('assets/images/intro_brew.jpg') as ImageProvider),
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -99,14 +102,24 @@ class CartScreen extends ConsumerWidget {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        item.nameEn,
-                                        style: GoogleFonts.dmSans(
-                                          fontSize: 14,
+                                        isArabic ? item.nameAr : item.nameEn,
+                                        style: GoogleFonts.tajawal(
+                                          fontSize: 14.5,
                                           fontWeight: FontWeight.w700,
                                           color: AppColors.primaryBlack,
                                         ),
                                       ),
-                                      if (item.specialInstructions != null && item.specialInstructions!.isNotEmpty) ...[
+                                      if (item.selectedOptions.isNotEmpty) ...[
+                                        const SizedBox(height: 3),
+                                        Text(
+                                          isArabic ? item.optionsSummaryAr : item.optionsSummaryEn,
+                                          style: GoogleFonts.tajawal(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                            color: const Color(0xFF9A7B4F),
+                                          ),
+                                        ),
+                                      ] else if (item.specialInstructions != null && item.specialInstructions!.isNotEmpty) ...[
                                         const SizedBox(height: 2),
                                         Text(
                                           item.specialInstructions!,
@@ -121,8 +134,8 @@ class CartScreen extends ConsumerWidget {
                                         '${item.price.toInt()} AED',
                                         style: GoogleFonts.dmSans(
                                           fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.secondaryText,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.primaryBlack,
                                         ),
                                       ),
                                     ],

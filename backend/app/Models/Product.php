@@ -30,4 +30,9 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    public function optionGroups()
+    {
+        return $this->belongsToMany(OptionGroup::class, 'product_option_group');
+    }
 }
