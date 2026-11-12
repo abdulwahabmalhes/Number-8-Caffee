@@ -30,3 +30,4 @@ class Offer extends Model
         'expires_at' => 'date',
     ];
 }
+

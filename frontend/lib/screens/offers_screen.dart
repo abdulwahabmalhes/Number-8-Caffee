@@ -381,25 +381,39 @@ class _OffersScreenState extends ConsumerState<OffersScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
 
-                // Button: Use in Cart
-                SizedBox(
-                  width: double.infinity,
-                  height: 44,
-                  child: OutlinedButton(
-                    onPressed: () => _applyInCart(offer.couponCode),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.primaryBlack,
-                      side: const BorderSide(color: AppColors.primaryBlack, width: 1.2),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                // Button: Use in Cart (Sleek solid container to ensure perfect Arabic text rendering without vertical clipping)
+                InkWell(
+                  onTap: () => _applyInCart(offer.couponCode),
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
+                    width: double.infinity,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryBlack,
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    child: Text(
-                      isArabic ? 'استخدم الكوبون في السلة ➔' : 'Use in Cart ➔',
-                      style: GoogleFonts.tajawal(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                      ),
+                    alignment: Alignment.center,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          isArabic ? 'استخدم الكوبون في السلة' : 'Use Coupon in Cart',
+                          style: GoogleFonts.tajawal(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13.5,
+                            height: 1.2,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Icon(
+                          isArabic ? Icons.arrow_back : Icons.arrow_forward,
+                          size: 16,
+                          color: AppColors.goldAccent,
+                        ),
+                      ],
                     ),
                   ),
                 ),

@@ -56,3 +56,4 @@ class OffersSeeder extends Seeder
         }
     }
 }
+
