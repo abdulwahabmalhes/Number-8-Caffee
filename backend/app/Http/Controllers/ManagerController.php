@@ -9,6 +9,7 @@ use App\Models\Table;
 use App\Models\Category;
 use App\Models\Branch;
 use App\Models\Customer;
+use App\Models\Offer;
 use Illuminate\Support\Str;
 
 class ManagerController extends Controller
@@ -25,6 +26,7 @@ class ManagerController extends Controller
         $tables = Table::where('is_active', true)->orderBy('table_number')->get();
         $categories = Category::with(['products.optionGroups'])->where('is_active', true)->orderBy('sort_order')->get();
         $optionGroups = \App\Models\OptionGroup::with('options')->get();
+        $offers = Offer::orderBy('id', 'desc')->get();
         $recentOrders = Order::with(['items.product', 'table', 'vehicle'])->orderBy('created_at', 'desc')->take(20)->get();
 
         return view('manager.dashboard', compact(
@@ -36,6 +38,7 @@ class ManagerController extends Controller
             'tables',
             'categories',
             'optionGroups',
+            'offers',
             'recentOrders'
         ));
     }
@@ -682,5 +685,56 @@ class ManagerController extends Controller
             'Friday' => 'الجمعة',
         ];
         return $map[$englishDay] ?? $englishDay;
+    }
+
+    public function storeOffer(Request $request)
+    {
+        $request->validate([
+            'title_ar' => 'required|string|max:255',
+            'coupon_code' => 'required|string|max:50|unique:offers,coupon_code',
+            'discount_value' => 'required|numeric',
+        ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image_file')) {
+            $file = $request->file('image_file');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/offers'), $fileName);
+            $imagePath = '/uploads/offers/' . $fileName;
+        } elseif ($request->filled('image_url')) {
+            $imagePath = $request->image_url;
+        } else {
+            $imagePath = 'https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=600&auto=format&fit=crop';
+        }
+
+        Offer::create([
+            'title_ar' => $request->title_ar,
+            'title_en' => $request->title_en,
+            'description_ar' => $request->description_ar,
+            'description_en' => $request->description_en,
+            'image' => $imagePath,
+            'coupon_code' => strtoupper(trim($request->coupon_code)),
+            'discount_type' => $request->discount_type ?? 'percentage',
+            'discount_value' => $request->discount_value,
+            'min_order_amount' => $request->min_order_amount ?? 0,
+            'is_active' => true,
+        ]);
+
+        return redirect()->back()->with('success', 'تمت إضافة العرض والكوبون بنجاح');
+    }
+
+    public function deleteOffer($id)
+    {
+        $offer = Offer::findOrFail($id);
+        $offer->delete();
+        return redirect()->back()->with('success', 'تم حذف العرض');
+    }
+
+    public function toggleOffer($id)
+    {
+        $offer = Offer::findOrFail($id);
+        $offer->is_active = !$offer->is_active;
+        $offer->save();
+        return response()->json(['success' => true, 'is_active' => $offer->is_active]);
     }
 }

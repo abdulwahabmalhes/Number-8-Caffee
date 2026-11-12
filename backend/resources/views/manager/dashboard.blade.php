@@ -491,6 +491,46 @@
                         @endforelse
                     </div>
                 </div>
+
+                <!-- Offers & Coupons Management Card -->
+                <div class="section-card" style="margin-top: 20px;">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">إدارة العروض والكوبونات (Offers & Coupons)</h2>
+                            <p style="font-size: 12px; color: var(--secondary);">إضافة عروض وخصومات ينسخها الزبون في التطبيق</p>
+                        </div>
+                        <button onclick="openAddOfferModal()" class="btn btn-primary" style="padding: 6px 12px;">+ عرض جديد</button>
+                    </div>
+
+                    <div style="max-height: 440px; overflow-y: auto;">
+                        @forelse($offers as $offer)
+                            <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 12px; margin-bottom: 12px;">
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    @if($offer->image)
+                                        <img src="{{ $offer->image }}" style="width: 48px; height: 48px; border-radius: 10px; object-fit: cover;">
+                                    @endif
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 800; font-size: 14px;">{{ $offer->title_ar }}</div>
+                                        <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
+                                            <span style="background: #111; color: #fff; font-family: 'DM Sans', sans-serif; font-weight: 800; padding: 2px 8px; border-radius: 6px; font-size: 11px;">
+                                                {{ $offer->coupon_code }}
+                                            </span>
+                                            <span style="color: var(--gold); font-weight: 700; font-size: 12px;">
+                                                {{ $offer->discount_type === 'percentage' ? $offer->discount_value.'%' : $offer->discount_value.' AED' }} خصم
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <form action="/manager/offers/{{ $offer->id }}/delete" method="POST" onsubmit="return confirm('حذف هذا العرض؟');" style="margin: 0;">
+                                        @csrf
+                                        <button type="submit" class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;">×</button>
+                                    </form>
+                                </div>
+                            </div>
+                        @empty
+                            <div style="text-align: center; color: var(--secondary); padding: 20px;">لا توجد عروض مضافة بعد</div>
+                        @endforelse
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -713,6 +753,63 @@
         </div>
     </div>
 
+    <!-- Modal 7: Add Offer & Coupon -->
+    <div class="modal-overlay" id="addOfferModal">
+        <div class="modal-card" style="max-width: 550px;">
+            <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 18px;">
+                إضافة عرض وكوبون خصم جديد (New Offer & Promo)
+            </h3>
+            <form action="/manager/offers" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>عنوان العرض (عربي) *</label>
+                        <input type="text" name="title_ar" class="form-control" placeholder="مثال: خصم 20% على القهوة المقطرة" required>
+                    </div>
+                    <div class="form-group">
+                        <label>عنوان العرض (إنجليزي)</label>
+                        <input type="text" name="title_en" class="form-control" placeholder="e.g. 20% Off Filter Coffee">
+                    </div>
+                    <div class="form-group">
+                        <label>كود الكوبون (Coupon Code) *</label>
+                        <input type="text" name="coupon_code" class="form-control" placeholder="مثال: N8OFF20" style="text-transform: uppercase; font-weight: 800; letter-spacing: 1px;" required>
+                    </div>
+                    <div class="form-group">
+                        <label>نوع الخصم</label>
+                        <select name="discount_type" class="form-control">
+                            <option value="percentage">نسبة مئوية (%)</option>
+                            <option value="fixed">مبلغ ثابت بالدرهم (AED)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>قيمة الخصم (رقم) *</label>
+                        <input type="number" step="0.1" name="discount_value" class="form-control" placeholder="مثال: 20 أو 15" required>
+                    </div>
+                    <div class="form-group">
+                        <label>الحد الأدنى للطلب (AED)</label>
+                        <input type="number" step="1" name="min_order_amount" class="form-control" value="0">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label>وصف العرض (عربي)</label>
+                    <textarea name="description_ar" class="form-control" rows="2" placeholder="تفاصيل العرض والشروط..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>صورة العرض (رفع ملف من الجهاز أو رابط مباشر)</label>
+                    <input type="file" name="image_file" class="form-control" accept="image/*" onchange="previewUpload(this, 'offer_preview_container', 'offer_preview_img')">
+                    <input type="url" name="image_url" class="form-control" placeholder="أو رابط صورة URL خارجي" style="margin-top: 8px;">
+                    <div id="offer_preview_container" style="display: none; margin-top: 10px;">
+                        <img id="offer_preview_img" src="" style="width: 100%; height: 120px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border);">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 24px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center; padding: 12px;">نشر العرض في التطبيق</button>
+                    <button type="button" onclick="closeModals()" class="btn btn-secondary" style="padding: 12px 20px;">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Master Localization Engine Script -->
     <script src="/js/n8-i18n.js"></script>
 
@@ -721,6 +818,7 @@
         function openAddTableModal() { document.getElementById('addTableModal').style.display = 'flex'; }
         function openAddCategoryModal() { document.getElementById('addCategoryModal').style.display = 'flex'; }
         function openAddOptionGroupModal() { document.getElementById('addOptionGroupModal').style.display = 'flex'; }
+        function openAddOfferModal() { document.getElementById('addOfferModal').style.display = 'flex'; }
         function openAddOptionModal(groupId, groupName) {
             document.getElementById('modal_og_id').value = groupId;
             document.getElementById('modal_og_title').textContent = groupName;

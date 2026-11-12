@@ -66,6 +66,13 @@ Route::prefix('manager')->middleware(['auth', AdminOnlyMiddleware::class])->grou
     // Table QR Management & Printouts
     Route::post('/tables', [ManagerController::class, 'storeTable']);
     Route::post('/tables/{id}/delete', [ManagerController::class, 'deleteTable']);
+    Route::post('/tables/{id}/generate-qr', [ManagerController::class, 'generateQr']);
+    Route::get('/tables/{id}/print', [ManagerController::class, 'printTable']);
+
+    // Offers & Coupons Management
+    Route::post('/offers', [ManagerController::class, 'storeOffer']);
+    Route::post('/offers/{id}/delete', [ManagerController::class, 'deleteOffer']);
+    Route::post('/offers/{id}/toggle', [ManagerController::class, 'toggleOffer']);
     Route::post('/tables/{id}/generate-qr', [ManagerController::class, 'generateTableQr']);
     Route::get('/tables/{id}/print', [ManagerController::class, 'printTableQr']);
     Route::get('/tables/print-all', [ManagerController::class, 'printAllTablesQr']);

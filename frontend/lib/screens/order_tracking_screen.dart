@@ -10,6 +10,7 @@ import '../widgets/n8_bottom_nav.dart';
 import '../widgets/n8_logo.dart';
 import '../widgets/n8_popup.dart';
 import '../core/api_client.dart';
+import 'main_screen.dart';
 import 'loyalty_tier_screen.dart';
 import 'loyalty_punch_screen.dart';
 import 'profile_screen.dart';
@@ -346,20 +347,13 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
               ),
 
               N8BottomNav(
-                currentIndex: _currentNavIndex,
+                currentIndex: 1,
                 onTap: (index) {
-                  setState(() => _currentNavIndex = index);
-                  if (index == 0) {
-                    Navigator.pop(context);
-                  } else if (index == 1) {
-                    // Current tracking
-                  } else if (index == 2) {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const LoyaltyTierScreen()));
-                  } else if (index == 3) {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const LoyaltyPunchScreen()));
-                  } else if (index == 4) {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
-                  }
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => MainScreen(initialIndex: index)),
+                    (route) => false,
+                  );
                 },
               ),
             ],

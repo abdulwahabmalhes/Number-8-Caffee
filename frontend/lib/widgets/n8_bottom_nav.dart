@@ -44,12 +44,6 @@ class N8BottomNav extends ConsumerWidget {
         labelEn: 'Offers',
       ),
       _NavItem(
-        icon: Icons.card_giftcard_outlined,
-        activeIcon: Icons.card_giftcard,
-        labelAr: 'المكافآت',
-        labelEn: 'Rewards',
-      ),
-      _NavItem(
         icon: Icons.person_outline,
         activeIcon: Icons.person,
         labelAr: 'حسابي',

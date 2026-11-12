@@ -4,26 +4,31 @@ import '../widgets/n8_bottom_nav.dart';
 import 'service_selection_screen.dart';
 import 'orders_history_screen.dart';
 import 'offers_screen.dart';
-import 'loyalty_punch_screen.dart';
 import 'profile_screen.dart';
 
 class MainScreen extends ConsumerStatefulWidget {
-  const MainScreen({super.key});
+  final int initialIndex;
+  const MainScreen({super.key, this.initialIndex = 0});
 
   @override
   ConsumerState<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends ConsumerState<MainScreen> {
-  int _currentIndex = 0;
+  late int _currentIndex;
 
   final List<Widget> _pages = [
     const ServiceSelectionScreen(),
     const OrdersHistoryScreen(),
     const OffersScreen(),
-    const LoyaltyPunchScreen(),
     const ProfileScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
 
   @override
   Widget build(BuildContext context) {

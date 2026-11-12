@@ -6,6 +6,7 @@ import '../providers/locale_provider.dart';
 import '../providers/session_provider.dart';
 import '../providers/user_data_provider.dart';
 import '../widgets/n8_bottom_nav.dart';
+import 'main_screen.dart';
 import 'menu_screen.dart';
 import 'orders_history_screen.dart';
 import 'offers_screen.dart';
@@ -609,17 +610,11 @@ class _CarServiceScreenState extends ConsumerState<CarServiceScreen> {
               N8BottomNav(
                 currentIndex: 0,
                 onTap: (index) {
-                  if (index == 0) {
-                    Navigator.pop(context);
-                  } else if (index == 1) {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const OrdersHistoryScreen()));
-                  } else if (index == 2) {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const OffersScreen()));
-                  } else if (index == 3) {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const LoyaltyPunchScreen()));
-                  } else if (index == 4) {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
-                  }
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => MainScreen(initialIndex: index)),
+                    (route) => false,
+                  );
                 },
               ),
             ],

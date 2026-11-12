@@ -7,6 +7,8 @@ import '../providers/cart_provider.dart';
 import '../providers/menu_provider.dart';
 import '../widgets/n8_bottom_nav.dart';
 import '../widgets/n8_popup.dart';
+import 'main_screen.dart';
+import 'offers_screen.dart';
 import 'product_details_screen.dart';
 import 'cart_screen.dart';
 import 'orders_history_screen.dart';
@@ -481,35 +483,16 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                   N8BottomNav(
                     currentIndex: _currentNavIndex,
                     onTap: (index) {
-                      setState(() => _currentNavIndex = index);
-                      if (index == 0) {
-                        // Current Menu
-                      } else if (index == 1) {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const OrdersHistoryScreen()));
-                      } else if (index == 2) {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const LoyaltyTierScreen()));
-                      } else if (index == 3) {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const LoyaltyPunchScreen()));
-                      } else if (index == 4) {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
-                      }
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => MainScreen(initialIndex: index)),
+                        (route) => false,
+                      );
                     },
                   ),
                 ],
               ),
             ),
-            // Floating Cart Action Button if items in cart
-            floatingActionButton: cartItemsCount > 0
-                ? FloatingActionButton.extended(
-                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartScreen())),
-                    backgroundColor: AppColors.primaryBlack,
-                    icon: const Icon(Icons.shopping_bag_outlined, color: Colors.white),
-                    label: Text(
-                      isArabic ? 'السلة ($cartItemsCount)' : 'Cart ($cartItemsCount)',
-                      style: GoogleFonts.tajawal(fontWeight: FontWeight.w700, color: Colors.white),
-                    ),
-                  )
-                : null,
           ),
         );
       },
