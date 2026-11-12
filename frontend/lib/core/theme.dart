@@ -15,6 +15,7 @@ class AppColors {
   // Luxury Dark Cards (for N8 Rewards)
   static const Color darkCardBackground = Color(0xFF1A1A1A);
   static const Color darkCardBorder = Color(0xFF2E2E2E);
+  static const Color gold = Color(0xFFC5A880);
   static const Color goldAccent = Color(0xFFD4AF37);
 }
 
