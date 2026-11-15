@@ -108,9 +108,13 @@ class ManagerController extends Controller
         $imagePath = 'https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=400&auto=format&fit=crop';
 
         if ($request->hasFile('image_file')) {
+            $destDir = public_path('uploads/products');
+            if (!file_exists($destDir)) {
+                @mkdir($destDir, 0777, true);
+            }
             $file = $request->file('image_file');
             $filename = time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/products'), $filename);
+            $file->move($destDir, $filename);
             $imagePath = '/uploads/products/' . $filename;
         } elseif ($request->filled('image_url')) {
             $imagePath = $request->image_url;
@@ -146,12 +150,16 @@ class ManagerController extends Controller
         ]);
 
         $product = Product::findOrFail($id);
-        $imagePath = $product->image;
+        $imagePath = $product->getRawOriginal('image') ?? $product->image;
 
         if ($request->hasFile('image_file')) {
+            $destDir = public_path('uploads/products');
+            if (!file_exists($destDir)) {
+                @mkdir($destDir, 0777, true);
+            }
             $file = $request->file('image_file');
             $filename = time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/products'), $filename);
+            $file->move($destDir, $filename);
             $imagePath = '/uploads/products/' . $filename;
         } elseif ($request->filled('image_url')) {
             $imagePath = $request->image_url;
