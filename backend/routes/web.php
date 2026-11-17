@@ -76,4 +76,12 @@ Route::prefix('manager')->middleware(['auth', AdminOnlyMiddleware::class])->grou
     Route::post('/tables/{id}/generate-qr', [ManagerController::class, 'generateTableQr']);
     Route::get('/tables/{id}/print', [ManagerController::class, 'printTableQr']);
     Route::get('/tables/print-all', [ManagerController::class, 'printAllTablesQr']);
+
+    // Loyalty Program Settings (Target Cups)
+    Route::post('/loyalty-settings', [ManagerController::class, 'updateLoyaltySettings']);
+
+    // Catalog Backup & Restore
+    Route::get('/backup/export', [ManagerController::class, 'exportBackup']);
+    Route::post('/backup/import', [ManagerController::class, 'importBackup']);
+    Route::post('/backup/restore-default', [ManagerController::class, 'restoreDefaultCatalog']);
 });

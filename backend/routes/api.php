@@ -21,6 +21,15 @@ Route::prefix('v1')->group(function () {
     Route::get('/menu', [MenuController::class, 'index']);
     Route::get('/offers', [\App\Http\Controllers\Api\OfferApiController::class, 'index']);
     Route::post('/coupons/validate', [\App\Http\Controllers\Api\OfferApiController::class, 'validateCoupon']);
+    Route::get('/loyalty/config', function () {
+        $target = (int)\App\Models\Setting::get('loyalty_target_cups', 8);
+        if ($target <= 0) $target = 8;
+        return response()->json([
+            'success' => true,
+            'target_cups' => $target,
+            'free_cup_number' => $target + 1,
+        ]);
+    });
     Route::get('/stripe/config', [\App\Http\Controllers\Api\PaymentController::class, 'getConfig']);
     Route::post('/stripe/update-keys', [\App\Http\Controllers\Api\PaymentController::class, 'updateKeys'])->middleware('auth:sanctum');
     Route::post('/stripe/process-card-payment', [\App\Http\Controllers\Api\PaymentController::class, 'processCardPayment'])->middleware('auth:sanctum');

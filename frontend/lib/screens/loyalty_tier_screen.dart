@@ -173,12 +173,12 @@ class _LoyaltyTierScreenState extends ConsumerState<LoyaltyTierScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Benefit 1: 9th Cup Free
+                      // Benefit 1: Free Cup Reward
                       _buildBenefitCard(
                         icon: Icons.coffee_outlined,
                         title: isArabic
-                            ? 'كل 8 أكواب الكوب التاسع مجاناً'
-                            : 'Buy 8 cups and get the 9th free',
+                            ? 'كوب قهوة مجاني مع برنامج المكافآت'
+                            : 'Free coffee cup with rewards program',
                         onTap: () {
                           Navigator.push(
                             context,

@@ -29,6 +29,9 @@ class ManagerController extends Controller
         $offers = Offer::orderBy('id', 'desc')->get();
         $recentOrders = Order::with(['items.product', 'table', 'vehicle'])->orderBy('created_at', 'desc')->take(20)->get();
 
+        $loyaltyTargetCups = (int)\App\Models\Setting::get('loyalty_target_cups', 8);
+        if ($loyaltyTargetCups <= 0) $loyaltyTargetCups = 8;
+
         return view('manager.dashboard', compact(
             'totalSales',
             'ordersCount',
@@ -39,33 +42,43 @@ class ManagerController extends Controller
             'categories',
             'optionGroups',
             'offers',
-            'recentOrders'
+            'recentOrders',
+            'loyaltyTargetCups'
         ));
     }
 
     public function customers()
     {
+        $loyaltyTargetCups = (int)\App\Models\Setting::get('loyalty_target_cups', 8);
+        if ($loyaltyTargetCups <= 0) $loyaltyTargetCups = 8;
+
         // Get all customers, with a count of their paid orders
         $customers = Customer::withCount(['orders' => function ($query) {
             $query->where('payment_status', 'paid');
         }])->orderBy('orders_count', 'desc')->get();
 
-        // Calculate cups for each customer
+        // Calculate cups for each customer based on configurable target
         foreach ($customers as $customer) {
-            // Number of completed cups based on orders_count
             $customer->total_cups = $customer->orders_count;
-            // Cups remaining for next reward (every 8 cups -> 1 free)
-            $customer->cups_remaining = 8 - ($customer->total_cups % 8);
-            if ($customer->cups_remaining == 8 && $customer->total_cups > 0) {
-                // If it's a multiple of 8, they just earned a reward, so 0 remaining to GET a reward
-                // But typically UI shows 8 out of 8 as full, so we'll leave cups_remaining = 8 as "8 cups to go for NEXT reward"
-                // Or maybe 0? The UI on frontend: 8 cups target, if 0, then reward.
-                // Let's use standard modulo arithmetic.
+            $customer->cups_remaining = $loyaltyTargetCups - ($customer->total_cups % $loyaltyTargetCups);
+            if ($customer->cups_remaining == $loyaltyTargetCups && $customer->total_cups > 0) {
                 $customer->cups_remaining = 0; // Means they have a reward ready to claim!
             }
         }
 
-        return view('manager.customers', compact('customers'));
+        return view('manager.customers', compact('customers', 'loyaltyTargetCups'));
+    }
+
+    public function updateLoyaltySettings(Request $request)
+    {
+        $request->validate([
+            'target_cups' => 'required|integer|min:1|max:50',
+        ]);
+
+        $cups = (int)$request->target_cups;
+        \App\Models\Setting::set('loyalty_target_cups', $cups);
+
+        return redirect()->back()->with('success', 'تم حفظ وتحديث عدد أكواب برنامج المكافآت بنجاح: ' . $cups . ' أكواب');
     }
 
     public function orders()
@@ -744,5 +757,120 @@ class ManagerController extends Controller
         $offer->is_active = !$offer->is_active;
         $offer->save();
         return response()->json(['success' => true, 'is_active' => $offer->is_active]);
+    }
+
+    /**
+     * Export Catalog Backup (.sql file)
+     */
+    public function exportBackup()
+    {
+        $tables = [
+            'branches',
+            'tables',
+            'categories',
+            'option_groups',
+            'products',
+            'options',
+            'product_option_group',
+            'offers',
+            'settings',
+        ];
+
+        $filename = 'NumberEight_Backup_' . date('Y-m-d_His') . '.sql';
+
+        $out = "-- ========================================================\n";
+        $out .= "-- NUMBER EIGHT SPECIALTY COFFEE - CATALOG BACKUP\n";
+        $out .= "-- Generated at: " . date('Y-m-d H:i:s') . "\n";
+        $out .= "-- ========================================================\n\n";
+        $out .= "SET FOREIGN_KEY_CHECKS = 0;\n";
+        $out .= "SET NAMES utf8mb4;\n\n";
+
+        foreach ($tables as $table) {
+            if (!\Illuminate\Support\Facades\Schema::hasTable($table)) {
+                continue;
+            }
+
+            $out .= "-- --------------------------------------------------------\n";
+            $out .= "-- Table: `{$table}`\n";
+            $out .= "-- --------------------------------------------------------\n";
+
+            $rows = \Illuminate\Support\Facades\DB::table($table)->get();
+            if ($rows->isNotEmpty()) {
+                foreach ($rows as $row) {
+                    $rowArr = (array)$row;
+                    $cols = array_keys($rowArr);
+                    $colsEscaped = array_map(fn($c) => "`{$c}`", $cols);
+
+                    $valsEscaped = array_map(function($val) {
+                        if ($val === null) return "NULL";
+                        return "'" . addslashes((string)$val) . "'";
+                    }, array_values($rowArr));
+
+                    $out .= "REPLACE INTO `{$table}` (" . implode(', ', $colsEscaped) . ") VALUES (" . implode(', ', $valsEscaped) . ");\n";
+                }
+            }
+            $out .= "\n";
+        }
+
+        $out .= "SET FOREIGN_KEY_CHECKS = 1;\n";
+        $out .= "-- ========================================================\n";
+        $out .= "-- END OF BACKUP\n";
+        $out .= "-- ========================================================\n";
+
+        return response($out, 200, [
+            'Content-Type' => 'application/sql',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
+    }
+
+    /**
+     * Import Catalog Backup (.sql file)
+     */
+    public function importBackup(Request $request)
+    {
+        $request->validate([
+            'backup_file' => 'required|file',
+        ]);
+
+        $file = $request->file('backup_file');
+        $content = file_get_contents($file->getRealPath());
+
+        if (empty(trim($content))) {
+            return redirect()->back()->with('error', 'الملف المرفوع فارغ!');
+        }
+
+        try {
+            \Illuminate\Support\Facades\DB::unprepared($content);
+            return redirect()->back()->with('success', 'تم استرجاع النسخة الاحتياطية بنجاح! تم استعادة جميع المنتجات والتصنيفات.');
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'حدث خطأ أثناء استيراد النسخة الاحتياطية: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Restore Default Verified Catalog with High-Res Images
+     */
+    public function restoreDefaultCatalog()
+    {
+        try {
+            $sqlPath = database_path('number_eight_full_setup.sql');
+            if (!file_exists($sqlPath)) {
+                $sqlPath = database_path('restore_dashboard_data.sql');
+            }
+
+            if (file_exists($sqlPath)) {
+                $content = file_get_contents($sqlPath);
+                \Illuminate\Support\Facades\DB::unprepared($content);
+            } else {
+                \Illuminate\Support\Facades\Artisan::call('db:seed', [
+                    '--class' => 'MenuSeeder',
+                    '--force' => true,
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'تم استرجاع الكتالوج المعتمد بالكامل (11 تصنيف و 19 منتج بصورها الحقيقية) بنجاح!');
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'حدث خطأ أثناء استرجاع الكتالوج: ' . $e->getMessage());
+        }
     }
 }

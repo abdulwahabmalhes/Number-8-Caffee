@@ -57,8 +57,8 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
     OnboardingItem(
       titleAr: 'اجمع النقاط والمكافآت مع كل طلب',
       titleEn: 'Earn Rewards with Every Order',
-      descAr: 'اشترِ 8 أكواب واحصل على الكوب التاسع مجاناً، بالإضافة لمزايا المستوى الذهبي.',
-      descEn: 'Buy 8 cups and get your 9th cup on us, plus exclusive Gold Tier perks.',
+      descAr: 'اشترِ أكواب القهوة المفضلة لديك واحصل على كوبك مجاناً مع برنامج الولاء الحصري.',
+      descEn: 'Buy your favorite coffee cups and get your free reward cup with our loyalty program.',
       imageAsset: 'assets/images/intro_loyalty.jpg',
     ),
   ];

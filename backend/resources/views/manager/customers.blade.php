@@ -201,12 +201,25 @@
     </header>
 
     <div class="container">
+        @if(session('success'))
+            <div style="background: #E8F5E9; color: var(--green); padding: 12px 16px; border-radius: 12px; margin-bottom: 20px; font-weight: 700;">
+                {{ session('success') }}
+            </div>
+        @endif
+
         <div class="section-card">
             <div class="section-header">
                 <div>
                     <h2 class="section-title" data-i18n="cust_card_title">بيانات العملاء وبرنامج الولاء</h2>
-                    <p style="font-size: 12px; color: var(--secondary);" data-i18n="cust_card_sub">كوب مجاني لكل 8 أكواب - هنا يمكنك تتبع استهلاك العملاء</p>
+                    <p style="font-size: 12px; color: var(--secondary);">كوب مجاني لكل {{ $loyaltyTargetCups ?? 8 }} أكواب - هنا يمكنك تتبع استهلاك العملاء</p>
                 </div>
+                <form action="/manager/loyalty-settings" method="POST" style="display: flex; gap: 8px; align-items: center; background: var(--bg); border: 1px solid var(--border); padding: 6px 12px; border-radius: 12px;">
+                    @csrf
+                    <span style="font-size: 12px; font-weight: 700;">أكواب المكافأة:</span>
+                    <input type="number" name="target_cups" min="1" max="50" value="{{ $loyaltyTargetCups ?? 8 }}" required
+                           style="width: 60px; padding: 4px 8px; font-size: 14px; font-weight: 800; text-align: center; border: 1px solid var(--border); border-radius: 8px;">
+                    <button type="submit" class="btn btn-primary" style="padding: 5px 12px; font-size: 11.5px;">حفظ</button>
+                </form>
             </div>
 
             <table>
@@ -250,7 +263,8 @@
                                     </div>
                                     <div class="progress-bar">
                                         @php
-                                            $progress = ((8 - $customer->cups_remaining) / 8) * 100;
+                                            $tCups = $loyaltyTargetCups ?? 8;
+                                            $progress = (($tCups - $customer->cups_remaining) / $tCups) * 100;
                                         @endphp
                                         <div class="progress-fill" style="width: {{ $progress }}%;"></div>
                                     </div>

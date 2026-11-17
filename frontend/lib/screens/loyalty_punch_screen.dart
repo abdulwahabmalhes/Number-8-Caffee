@@ -17,16 +17,28 @@ class LoyaltyPunchScreen extends ConsumerStatefulWidget {
 
 class _LoyaltyPunchScreenState extends ConsumerState<LoyaltyPunchScreen> {
   int _completedCups = 0;
-  final int _targetCups = 8;
+  int _targetCups = 8;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => _fetchCups());
+    Future.microtask(() => _fetchCupsAndConfig());
   }
 
-  Future<void> _fetchCups() async {
+  Future<void> _fetchCupsAndConfig() async {
+    // 1. Fetch dynamic loyalty configuration from dashboard
+    try {
+      final configRes = await ApiClient.instance.get('/loyalty/config');
+      if (configRes.data != null && configRes.data['success'] == true && mounted) {
+        final target = (configRes.data['target_cups'] as num?)?.toInt() ?? 8;
+        if (target > 0) {
+          setState(() => _targetCups = target);
+        }
+      }
+    } catch (_) {}
+
+    // 2. Fetch customer paid cups from orders
     final auth = ref.read(authProvider);
     if (!auth.isAuthenticated) {
       if (mounted) setState(() => _isLoading = false);
@@ -58,6 +70,7 @@ class _LoyaltyPunchScreenState extends ConsumerState<LoyaltyPunchScreen> {
       if (mounted) setState(() => _isLoading = false);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final isArabic = ref.watch(localeProvider).languageCode == 'ar';
@@ -94,11 +107,11 @@ class _LoyaltyPunchScreenState extends ConsumerState<LoyaltyPunchScreen> {
                     children: [
                       const SizedBox(height: 10),
 
-                      // Subtitle
+                      // Dynamic Subtitle based on configured target cups
                       Text(
                         isArabic
-                            ? 'اشتري 8 أكواب واحصل على\nالكوب التاسع مجاناً'
-                            : 'Buy 8 cups & get your\n9th cup on us',
+                            ? 'اشتري $_targetCups أكواب واحصل على\nالكوب ${_targetCups + 1} مجاناً'
+                            : 'Buy $_targetCups cups & get your\n${_targetCups + 1}th cup on us',
                         style: GoogleFonts.tajawal(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,

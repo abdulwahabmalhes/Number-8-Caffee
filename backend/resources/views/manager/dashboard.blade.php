@@ -275,6 +275,9 @@
             <button onclick="window.open('/manager/tables/print-all', '_blank')" class="btn btn-primary" data-i18n="nav_print_tables">
                 طباعة بطاقات الطاولات 🖨️
             </button>
+            <a href="/manager/backup/export" class="btn btn-secondary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                نسخة احتياطية 📥
+            </a>
             <form action="/logout" method="POST" style="margin: 0;">
                 @csrf
                 <button type="submit" class="btn btn-danger" data-i18n="logout" style="padding: 8px 14px; font-weight: 700; cursor: pointer;">
@@ -288,6 +291,36 @@
         @if(session('success'))
             <div class="alert-success">{{ session('success') }}</div>
         @endif
+        @if(session('error'))
+            <div style="background: #FFEBEE; color: var(--red); padding: 12px 16px; border-radius: 12px; margin-bottom: 20px; font-weight: 700;">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        <!-- Catalog Safety & Instant Backup Banner -->
+        <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: 1px solid var(--border); border-radius: 20px; padding: 18px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 14px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: #E8F5E9; display: flex; align-items: center; justify-content: center; font-size: 22px;">🛡️</div>
+                <div>
+                    <h3 style="font-size: 16px; font-weight: 800;">النسخ الاحتياطي وحماية بيانات المنيو (Catalog Backup & Restore)</h3>
+                    <p style="font-size: 12px; color: var(--secondary);">احفظ نسخة كاملة من منتجاتك وأسعارك وصورك بضغطة واحدة، أو استرجعها في أي وقت بأمان تام</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <a href="/manager/backup/export" class="btn btn-primary" style="padding: 10px 18px; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-weight: 800;">
+                    📥 تصدير نسخة احتياطية (.sql)
+                </a>
+                <button type="button" onclick="openRestoreModal()" class="btn btn-secondary" style="padding: 10px 16px; font-size: 13px;">
+                    📤 استعادة من ملف
+                </button>
+                <form action="/manager/backup/restore-default" method="POST" onsubmit="return confirm('هل أنت متأكد من استعادة قائمة المنتجات المعتمدة الأصلية (19 منتجاً)؟');" style="margin: 0;">
+                    @csrf
+                    <button type="submit" class="btn btn-secondary" style="padding: 10px 14px; font-size: 13px; color: #8D6E63; border-color: var(--gold);">
+                        🔄 استعادة المنيو الأصلي
+                    </button>
+                </form>
+            </div>
+        </div>
 
         <!-- Quick Reports Access Banner -->
         <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: 1px solid var(--border); border-radius: 20px; padding: 18px 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 14px;">
@@ -530,6 +563,39 @@
                             <div style="text-align: center; color: var(--secondary); padding: 20px;">لا توجد عروض مضافة بعد</div>
                         @endforelse
                     </div>
+                </div>
+
+                <!-- Loyalty Program Settings Card (إعدادات عدد أكواب المكافأة) -->
+                <div class="section-card" style="margin-top: 20px;">
+                    <div class="section-header">
+                        <div>
+                            <h2 class="section-title">برنامج المكافآت والأكواب المجانية ☕🎁</h2>
+                            <p style="font-size: 12px; color: var(--secondary);">تحديد عدد الأكواب التي يشتريها الزبون ليربح الكوب المجاني</p>
+                        </div>
+                        <span style="background: #FFF8E1; border: 1px solid var(--gold); color: #8D6E63; font-weight: 800; padding: 4px 10px; border-radius: 8px; font-size: 12px;">
+                            الحالي: {{ $loyaltyTargetCups ?? 8 }} أكواب
+                        </span>
+                    </div>
+
+                    <form action="/manager/loyalty-settings" method="POST" style="background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 18px;">
+                        @csrf
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px;">
+                                عدد الأكواب المطلوبة للحصول على الكوب المجاني:
+                            </label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <input type="number" name="target_cups" min="1" max="50" value="{{ $loyaltyTargetCups ?? 8 }}" required 
+                                       style="width: 100px; padding: 10px 14px; font-size: 18px; font-weight: 800; font-family: 'DM Sans', sans-serif; border: 2px solid var(--border); border-radius: 10px; text-align: center;">
+                                <span style="font-weight: 700; font-size: 14px; color: var(--secondary);">أكواب (الكوب رقم {{ ($loyaltyTargetCups ?? 8) + 1 }} مجاناً)</span>
+                            </div>
+                            <p style="font-size: 11.5px; color: var(--secondary); margin-top: 8px; line-height: 1.5;">
+                                * عند تغيير هذا الرقم (مثلاً 5 أو 6 أو 8 أو 10)، سيتم تحديث دائرة الأكواب في تطبيق الزبائن فوراً، واحتساب الكوب المجاني الجديد تلقائياً.
+                            </p>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="padding: 10px 20px; font-size: 13px; font-weight: 800; cursor: pointer;">
+                            💾 حفظ عدد الأكواب في التطبيق
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -810,10 +876,36 @@
         </div>
     </div>
 
+    <!-- Modal: Restore Backup -->
+    <div class="modal-overlay" id="restoreModal">
+        <div class="modal-box">
+            <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 12px;">استعادة نسخة احتياطية للبيانات 📤</h3>
+            <p style="font-size: 13px; color: var(--secondary); margin-bottom: 18px; line-height: 1.5;">
+                اختر ملف النسخة الاحتياطية (.sql) الذي قمت بتحميله سابقاً لاسترجاع كافة الأصناف والتصنيفات والخيارات فوراً:
+            </p>
+            <form action="/manager/backup/import" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="form-group">
+                    <label>ملف النسخة الاحتياطية (.sql) *</label>
+                    <input type="file" name="backup_file" accept=".sql" required class="form-control" style="padding: 10px;">
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 24px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center; padding: 12px; font-weight: 800;">
+                        استرجاع البيانات الآن 🚀
+                    </button>
+                    <button type="button" onclick="closeModals()" class="btn btn-secondary" style="padding: 12px 20px;">
+                        إلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Master Localization Engine Script -->
     <script src="/js/n8-i18n.js"></script>
 
     <script>
+        function openRestoreModal() { document.getElementById('restoreModal').style.display = 'flex'; }
         function openAddProductModal() { document.getElementById('addProductModal').style.display = 'flex'; }
         function openAddTableModal() { document.getElementById('addTableModal').style.display = 'flex'; }
         function openAddCategoryModal() { document.getElementById('addCategoryModal').style.display = 'flex'; }
