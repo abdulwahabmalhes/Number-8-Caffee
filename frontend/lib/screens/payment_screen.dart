@@ -58,182 +58,8 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     }
   }
 
-  void _showStripeKeySettingsDialog() {
-    final isArabic = ref.read(localeProvider).languageCode == 'ar';
-    final pkCtrl = TextEditingController(text: _publishableKey);
-    final skCtrl = TextEditingController();
-    bool isSaving = false;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => StatefulBuilder(
-        builder: (modalContext, setModalState) => Container(
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 24,
-            bottom: MediaQuery.of(modalContext).viewInsets.bottom + 24,
-          ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF635BFF).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(Icons.vpn_key_rounded, color: Color(0xFF635BFF), size: 20),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        isArabic ? 'إعدادات مفاتيح Stripe' : 'Stripe API Keys Setup',
-                        style: GoogleFonts.tajawal(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.primaryBlack,
-                        ),
-                      ),
-                    ],
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, size: 20),
-                    onPressed: () => Navigator.pop(modalContext),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                isArabic
-                    ? 'أدخل مفاتيح الربط الخاصة بحسابك في Stripe لتفعيل الدفع المباشر'
-                    : 'Enter your Stripe API Keys to activate real-time card checkout',
-                style: GoogleFonts.tajawal(fontSize: 12, color: AppColors.secondaryText),
-              ),
-              const SizedBox(height: 16),
-
-              // Publishable Key
-              TextField(
-                controller: pkCtrl,
-                decoration: InputDecoration(
-                  labelText: isArabic ? 'المفتاح العام (Publishable Key)' : 'Publishable Key (pk_...)',
-                  hintText: 'pk_live_... / pk_test_...',
-                  prefixIcon: const Icon(Icons.public, size: 20),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Secret Key
-              TextField(
-                controller: skCtrl,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: isArabic ? 'المفتاح السري (Secret Key)' : 'Secret Key (sk_...)',
-                  hintText: 'sk_live_... / sk_test_...',
-                  prefixIcon: const Icon(Icons.lock_outline, size: 20),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                ),
-              ),
-              const SizedBox(height: 18),
-
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: isSaving
-                      ? null
-                      : () async {
-                          final pk = pkCtrl.text.trim();
-                          final sk = skCtrl.text.trim();
-
-                          if (pk.isEmpty || sk.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                backgroundColor: Colors.red[800],
-                                content: Text(
-                                  isArabic ? 'يرجى إدخال المفتاح العام والمفتاح السري' : 'Please provide both publishable and secret keys',
-                                  style: GoogleFonts.tajawal(fontWeight: FontWeight.w600),
-                                ),
-                              ),
-                            );
-                            return;
-                          }
-
-                          final messenger = ScaffoldMessenger.of(context);
-                          final nav = Navigator.of(modalContext);
-                          setModalState(() => isSaving = true);
-
-                          try {
-                            final res = await ApiClient.instance.post('/stripe/update-keys', data: {
-                              'publishable_key': pk,
-                              'secret_key': sk,
-                            });
-
-                            if (res.data['success'] == true) {
-                              nav.pop();
-                              await _loadStripeConfig();
-
-                              messenger.showSnackBar(
-                                SnackBar(
-                                  backgroundColor: Colors.green[800],
-                                  content: Text(
-                                    isArabic ? 'تم حفظ مفاتيح Stripe وتفعيل البوابة بنجاح!' : 'Stripe keys updated and gateway activated!',
-                                    style: GoogleFonts.tajawal(fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                              );
-                            }
-                          } catch (e) {
-                            setModalState(() => isSaving = false);
-                            messenger.showSnackBar(
-                              SnackBar(
-                                backgroundColor: Colors.red[800],
-                                content: Text(
-                                  isArabic ? 'حدث خطأ أثناء حفظ المفاتيح' : 'Error updating keys',
-                                  style: GoogleFonts.tajawal(fontWeight: FontWeight.w600),
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF635BFF),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: isSaving
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                        )
-                      : Text(
-                          isArabic ? 'حفظ المفاتيح في النظام' : 'Save Stripe Keys',
-                          style: GoogleFonts.tajawal(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Future<void> _handlePayment() async {
+    if (_isProcessing) return;
     final auth = ref.read(authProvider);
     if (!auth.isAuthenticated) {
       Navigator.push(
@@ -304,16 +130,26 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
       } catch (e) {
         if (mounted) {
           setState(() => _isProcessing = false);
-          String msg = isArabic ? 'تعذر الاتصال ببوابة Stripe' : 'Could not connect to Stripe';
+          String msg = isArabic ? 'تعذر إتمام الدفع عبر بوابة Stripe، يرجى المحاولة مرة أخرى' : 'Could not complete Stripe payment, please try again';
           if (e is DioException) {
-            final serverMsg = e.response?.data?['message'];
-            if (serverMsg != null && serverMsg.toString().isNotEmpty) {
-              msg = serverMsg.toString();
+            final serverMsg = e.response?.data?['message']?.toString();
+            if (serverMsg != null && serverMsg.isNotEmpty) {
+              final lower = serverMsg.toLowerCase();
+              if (!lower.contains('sqlstate') &&
+                  !lower.contains('exception') &&
+                  !lower.contains('fillable') &&
+                  !lower.contains('vendor') &&
+                  !lower.contains('app\\')) {
+                msg = serverMsg;
+              }
             } else if (e.message != null && e.message!.isNotEmpty) {
-              msg = e.message!;
+              msg = isArabic ? 'يرجى التحقق من اتصال الإنترنت والمحاولة ثانية' : 'Please check your internet connection and try again';
             }
           } else {
-            msg = e.toString().replaceFirst('Exception: ', '');
+            final raw = e.toString().replaceFirst('Exception: ', '');
+            if (!raw.toLowerCase().contains('exception')) {
+              msg = raw;
+            }
           }
           _showErrorSnackBar(msg);
         }
@@ -375,16 +211,26 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isProcessing = false);
-        String msg = isArabic ? 'تعذر إتمام عملية الطلب' : 'Could not place order';
+        String msg = isArabic ? 'تعذر إتمام عملية الطلب، يرجى المحاولة مرة أخرى' : 'Could not place order, please try again';
         if (e is DioException) {
-          final serverMsg = e.response?.data?['message'];
-          if (serverMsg != null && serverMsg.toString().isNotEmpty) {
-            msg = serverMsg.toString();
+          final serverMsg = e.response?.data?['message']?.toString();
+          if (serverMsg != null && serverMsg.isNotEmpty) {
+            final lower = serverMsg.toLowerCase();
+            if (!lower.contains('sqlstate') &&
+                !lower.contains('exception') &&
+                !lower.contains('fillable') &&
+                !lower.contains('vendor') &&
+                !lower.contains('app\\')) {
+              msg = serverMsg;
+            }
           } else if (e.message != null && e.message!.isNotEmpty) {
-            msg = e.message!;
+            msg = isArabic ? 'يرجى التحقق من اتصال الإنترنت والمحاولة ثانية' : 'Please check your internet connection and try again';
           }
         } else {
-          msg = e.toString().replaceFirst('Exception: ', '');
+          final raw = e.toString().replaceFirst('Exception: ', '');
+          if (!raw.toLowerCase().contains('exception')) {
+            msg = raw;
+          }
         }
         _showErrorSnackBar(msg);
       }
@@ -826,26 +672,25 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                                       ),
                                     ),
                                   ),
-                                  InkWell(
-                                    onTap: _showStripeKeySettingsDialog,
-                                    borderRadius: BorderRadius.circular(6),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(6),
-                                        border: Border.all(color: const Color(0xFF635BFF).withValues(alpha: 0.3)),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          const Icon(Icons.key, size: 12, color: Color(0xFF635BFF)),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            isArabic ? 'المفاتيح' : 'Keys',
-                                            style: GoogleFonts.tajawal(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF635BFF)),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF635BFF).withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.lock_outline, size: 12, color: Color(0xFF635BFF)),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          isArabic ? 'آمن ومشفّر' : 'Secure',
+                                          style: GoogleFonts.tajawal(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                            color: const Color(0xFF635BFF),
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],

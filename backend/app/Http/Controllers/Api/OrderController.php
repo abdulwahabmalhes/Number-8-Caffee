@@ -26,7 +26,8 @@ class OrderController extends Controller
             'payment_method' => 'nullable|string',
         ]);
 
-        return DB::transaction(function () use ($request) {
+        try {
+            return DB::transaction(function () use ($request) {
             $totalAmount = 0;
             // First pass to calculate total
             foreach ($request->items as $item) {
@@ -47,17 +48,25 @@ class OrderController extends Controller
             }
 
             $vehicleId = null;
-            if ($request->order_type === 'car' && $request->has('vehicle_details')) {
-                $vDetails = $request->vehicle_details;
-                $vehicle = \App\Models\Vehicle::firstOrCreate(
-                    ['plate_number' => $vDetails['plate_number'] ?? 'Unknown'],
-                    [
-                        'plate_emirate' => $vDetails['plate_emirate'] ?? null,
-                        'vehicle_model' => $vDetails['vehicle_model'] ?? null,
-                        'vehicle_color' => $vDetails['vehicle_color'] ?? null,
-                    ]
-                );
-                $vehicleId = $vehicle->id;
+            if ($request->order_type === 'car' && $request->has('vehicle_details') && is_array($request->vehicle_details)) {
+                try {
+                    $vDetails = $request->vehicle_details;
+                    $plateNumber = trim($vDetails['plate_number'] ?? '');
+                    if (!empty($plateNumber)) {
+                        $vehicle = \App\Models\Vehicle::firstOrCreate(
+                            ['plate_number' => $plateNumber],
+                            [
+                                'plate_emirate' => $vDetails['plate_emirate'] ?? null,
+                                'vehicle_type' => $vDetails['vehicle_type'] ?? null,
+                                'vehicle_model' => $vDetails['vehicle_model'] ?? null,
+                                'vehicle_color' => $vDetails['vehicle_color'] ?? null,
+                            ]
+                        );
+                        $vehicleId = $vehicle->id;
+                    }
+                } catch (\Throwable $e) {
+                    \Log::warning('OrderController: Vehicle record error: ' . $e->getMessage());
+                }
             }
 
             // Determine branch_id and table_id
@@ -133,6 +142,13 @@ class OrderController extends Controller
                 'order_number' => $order->order_number,
             ]);
         });
+        } catch (\Throwable $e) {
+            \Log::error('OrderController checkout error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'تعذر إتمام الطلب في الوقت الحالي، يرجى المحاولة مرة أخرى.',
+            ], 500);
+        }
     }
 
     public function status($order_number)

@@ -306,10 +306,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                   onTap: () {
                                     N8Popup.showConfirm(
                                       context: context,
-                                      title: isArabic ? 'حذف الحساب نهائياً' : 'Delete Account Permanently',
+                                      title: isArabic ? 'تأكيد حذف الحساب والبيانات' : 'Confirm Account Deletion',
                                       message: isArabic
-                                          ? 'هل أنت متأكد من رغبتك بحذف حسابك؟ سيتم حذف جميع بياناتك وسجل نقاط برنامج الولاء بشكل دائم ولا يمكن التراجع عن هذا الإجراء.'
-                                          : 'Are you sure you want to delete your account? All your personal data and loyalty points will be permanently deleted and cannot be undone.',
+                                          ? 'هل أنت متأكد من رغبتك في حذف حسابك نهائياً؟ سيتم مسح بياناتك الشخصية وسجل نقاط برنامج الولاء فوراً. يُرجى العلم أنه وفقاً للقوانين والأنظمة الضريبية والمحاسبية في دولة الإمارات، يتم الاحتفاظ بسجلات الفواتير المالية السابقة بشكل مجهول الهوية لأغراض التدقيق القانوني.'
+                                          : 'Are you sure you want to permanently delete your account? Your personal data and loyalty points will be deleted immediately. Please note that previous financial invoices will be retained anonymously in compliance with UAE accounting and statutory tax laws.',
                                       confirmBtnText: isArabic ? 'نعم، احذف حسابي' : 'Yes, Delete My Account',
                                       cancelBtnText: isArabic ? 'تراجع' : 'Cancel',
                                       isDestructive: true,

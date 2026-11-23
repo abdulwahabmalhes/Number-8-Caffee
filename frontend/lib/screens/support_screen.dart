@@ -8,12 +8,15 @@ import '../providers/locale_provider.dart';
 class SupportScreen extends ConsumerWidget {
   const SupportScreen({super.key});
 
-  // Configurable URLs and Numbers
-  static const String whatsappNumber = '+971500000000'; // Replace with actual WhatsApp
-  static const String phoneNumber = '+971500000000';
+  // Official Verified Contact Details
+  static const String cafePhone = '0509002711';
+  static const String directCallPhone = '0509004199';
+  static const String whatsappNumber = '971509002711';
+  static const String emailAddress = 'info@no8.ae';
+  static const String websiteUrl = 'https://no8.ae';
+  static const String mapsUrl = 'https://maps.google.com/?q=Number+Eight+Specialty+Coffee+Al+Ain';
   static const String instagramUrl = 'https://instagram.com/numbereight.ae';
   static const String tiktokUrl = 'https://tiktok.com/@numbereight.ae';
-  static const String websiteUrl = 'https://no8.ae';
 
   Future<void> _launchUrlHelper(BuildContext context, String urlString) async {
     final uri = Uri.parse(urlString);
@@ -116,7 +119,7 @@ class SupportScreen extends ConsumerWidget {
                 const SizedBox(height: 28),
 
                 Text(
-                  isArabic ? 'تواصل معنا مباشرة' : 'Direct Contact',
+                  isArabic ? 'قنوات التواصل المباشر' : 'Direct Channels',
                   style: GoogleFonts.tajawal(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -125,27 +128,70 @@ class SupportScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
 
+                // Direct Call Button
+                _buildContactTile(
+                  icon: Icons.phone_in_talk_rounded,
+                  iconColor: AppColors.goldAccent,
+                  title: isArabic ? 'الاتصال المباشر' : 'Direct Call',
+                  subtitle: directCallPhone,
+                  onTap: () => _launchUrlHelper(context, 'tel:$directCallPhone'),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Cafe Phone Button
+                _buildContactTile(
+                  icon: Icons.storefront_rounded,
+                  iconColor: AppColors.primaryBlack,
+                  title: isArabic ? 'رقم الكافيه' : 'Cafe Phone',
+                  subtitle: cafePhone,
+                  onTap: () => _launchUrlHelper(context, 'tel:$cafePhone'),
+                ),
+
+                const SizedBox(height: 12),
+
                 // WhatsApp Button
                 _buildContactTile(
                   icon: Icons.chat_bubble_outline,
                   iconColor: const Color(0xFF25D366),
                   title: isArabic ? 'محادثة عبر واتساب' : 'Chat via WhatsApp',
-                  subtitle: isArabic ? 'رد فوري ومباشر' : 'Instant response',
-                  onTap: () => _launchUrlHelper(context, 'https://wa.me/${whatsappNumber.replaceAll('+', '')}'),
+                  subtitle: cafePhone,
+                  onTap: () => _launchUrlHelper(context, 'https://wa.me/$whatsappNumber'),
                 ),
 
                 const SizedBox(height: 12),
 
-                // Phone Call Button
+                // Email Button
                 _buildContactTile(
-                  icon: Icons.phone_outlined,
-                  iconColor: AppColors.primaryBlack,
-                  title: isArabic ? 'الاتصال الهاتفي' : 'Phone Call',
-                  subtitle: phoneNumber,
-                  onTap: () => _launchUrlHelper(context, 'tel:$phoneNumber'),
+                  icon: Icons.mail_outline_rounded,
+                  iconColor: const Color(0xFFEA4335),
+                  title: isArabic ? 'البريد الإلكتروني' : 'Email Us',
+                  subtitle: emailAddress,
+                  onTap: () => _launchUrlHelper(context, 'mailto:$emailAddress'),
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 28),
+
+                Text(
+                  isArabic ? 'موقع الفرع' : 'Branch Location',
+                  style: GoogleFonts.tajawal(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primaryBlack,
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Branch Location / Google Maps Button
+                _buildContactTile(
+                  icon: Icons.location_on_outlined,
+                  iconColor: const Color(0xFF4285F4),
+                  title: isArabic ? 'فرع الخبيصي — العين' : 'Al Khabisi Branch — Al Ain',
+                  subtitle: isArabic ? 'فتح الموقع في خرائط Google' : 'Open in Google Maps',
+                  onTap: () => _launchUrlHelper(context, mapsUrl),
+                ),
+
+                const SizedBox(height: 28),
 
                 Text(
                   isArabic ? 'تابعنا على مواقع التواصل' : 'Follow Our Socials',
@@ -184,7 +230,7 @@ class SupportScreen extends ConsumerWidget {
                   icon: Icons.language_outlined,
                   iconColor: AppColors.goldAccent,
                   title: isArabic ? 'الموقع الإلكتروني' : 'Official Website',
-                  subtitle: 'numbereight.ae',
+                  subtitle: 'no8.ae',
                   onTap: () => _launchUrlHelper(context, websiteUrl),
                 ),
               ],

@@ -8,6 +8,12 @@ import '../providers/locale_provider.dart';
 class N8Drawer extends ConsumerWidget {
   const N8Drawer({super.key});
 
+  static const String cafePhone = '0509002711';
+  static const String directCallPhone = '0509004199';
+  static const String whatsappNumber = '971509002711';
+  static const String emailAddress = 'info@no8.ae';
+  static const String mapsUrl = 'https://maps.google.com/?q=Number+Eight+Specialty+Coffee+Al+Ain';
+
   Future<void> _launchUrl(String urlString) async {
     final uri = Uri.parse(urlString);
     try {
@@ -18,30 +24,61 @@ class N8Drawer extends ConsumerWidget {
   void _showPrivacyPolicy(BuildContext context, bool isArabic) {
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          isArabic ? 'سياسة الخصوصية والشروط' : 'Privacy Policy & Terms',
-          style: GoogleFonts.tajawal(fontWeight: FontWeight.w800, fontSize: 16),
-        ),
-        content: SingleChildScrollView(
-          child: Text(
-            isArabic
-                ? 'تطبيق NUMBER EIGHT يحترم خصوصيتك بالكامل. البيانات المستخدمة (رقم الهاتف، تفاصيل السيارة لطلبات الاستلام) تُستخدم حصرياً لإتمام طلبات القهوة وتحسين تجربتك داخل الفرع وخدمة السيارات. لا يتم مشاركة بياناتك مع أي طرف ثالث.\n\nفرع الخبيصي - العين - الإمارات العربية المتحدة.'
-                : 'NUMBER EIGHT respects your privacy. Information collected (phone number, vehicle details for car pickup) is used solely to process your coffee orders and deliver a seamless dine-in and car pickup experience. Your data is never shared with third parties.\n\nAl Khabisi Branch - Al Ain - UAE.',
-            style: GoogleFonts.tajawal(fontSize: 13, height: 1.5, color: AppColors.secondaryText),
+      builder: (ctx) => Directionality(
+        textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+        child: AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            isArabic ? 'سياسة الخصوصية والشروط' : 'Privacy Policy & Terms',
+            style: GoogleFonts.tajawal(fontWeight: FontWeight.w800, fontSize: 16),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(
-              isArabic ? 'إغلاق' : 'Close',
-              style: GoogleFonts.tajawal(fontWeight: FontWeight.w700, color: AppColors.primaryBlack),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  isArabic
+                      ? 'تطبيق NUMBER EIGHT يحترم خصوصيتك بالكامل ويخضع للأنظمة المعمول بها في دولة الإمارات العربية المتحدة.\n\n'
+                        '1. جمع البيانات:\nنجمع بيانات الاسم ورقم الهاتف وتفاصيل السيارة (في طلبات الاستلام بالسيارة) لتسهيل تجهيز وتقديم طلبك بدقة.\n\n'
+                        '2. أمان المدفوعات:\nتتم معالجة المدفوعات بأمان عبر بوابة Stripe المعتمدة وApple Pay دون تخزين أي أرقام بطاقات سرية على أجهزتنا أو خوادمنا.\n\n'
+                        '3. حذف الحساب:\nيمكنك حذف حسابك وبياناتك نهائياً في أي وقت عبر شاشة الحساب، مع الاحتفاظ بالسجلات المحاسبية والضريبية وفق القوانين.\n\n'
+                        'فرع الخبيصي — العين — الإمارات العربية المتحدة.\n'
+                        'للاستفسار: info@no8.ae'
+                      : 'NUMBER EIGHT respects your privacy in accordance with UAE laws.\n\n'
+                        '1. Data Collection:\nWe collect name, phone, and vehicle details (for car pickup) to accurately prepare and deliver your orders.\n\n'
+                        '2. Payment Security:\nPayments are securely processed via Stripe and Apple Pay. We do not store sensitive card data on our servers.\n\n'
+                        '3. Account Deletion:\nYou can permanently delete your account and personal data anytime from the Account screen, with financial records retained as required by tax laws.\n\n'
+                        'Al Khabisi Branch — Al Ain — UAE.\n'
+                        'Contact: info@no8.ae',
+                  style: GoogleFonts.tajawal(fontSize: 12.5, height: 1.6, color: AppColors.secondaryText),
+                ),
+                const SizedBox(height: 14),
+                InkWell(
+                  onTap: () => _launchUrl('https://no8.ae/privacy-policy'),
+                  child: Text(
+                    isArabic ? 'عرض سياسة الخصوصية الكاملة على موقعنا ↗' : 'View Full Privacy Policy on Website ↗',
+                    style: GoogleFonts.tajawal(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF2563EB),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(
+                isArabic ? 'إغلاق' : 'Close',
+                style: GoogleFonts.tajawal(fontWeight: FontWeight.w700, color: AppColors.primaryBlack),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -55,7 +92,7 @@ class N8Drawer extends ConsumerWidget {
       child: SafeArea(
         child: Column(
           children: [
-            // Header with smaller, more refined fonts
+            // Header
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               decoration: const BoxDecoration(
@@ -92,7 +129,7 @@ class N8Drawer extends ConsumerWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          isArabic ? 'القهوة المختصة — العين' : 'Specialty Coffee — Al Ain',
+                          isArabic ? 'القهوة المختصة — فرع الخبيصي، العين' : 'Specialty Coffee — Al Khabisi, Al Ain',
                           style: GoogleFonts.tajawal(
                             color: AppColors.gold,
                             fontSize: 11,
@@ -108,36 +145,54 @@ class N8Drawer extends ConsumerWidget {
 
             const SizedBox(height: 10),
 
-            // Navigation Items (Exact User Contact Details & Smaller Typography)
+            // Navigation Items
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 children: [
-                  // Phone Call (Call 0565956180)
+                  // Direct Call
                   _buildListTile(
                     icon: Icons.phone_in_talk_rounded,
                     iconColor: AppColors.gold,
-                    title: isArabic ? 'الاتصال المباشر' : 'Call Us',
-                    subtitle: '0565956180',
-                    onTap: () => _launchUrl('tel:0565956180'),
+                    title: isArabic ? 'الاتصال المباشر' : 'Direct Call',
+                    subtitle: directCallPhone,
+                    onTap: () => _launchUrl('tel:$directCallPhone'),
                   ),
 
-                  // WhatsApp Contact (+971 56 595 6180)
+                  // Cafe Phone
+                  _buildListTile(
+                    icon: Icons.storefront_rounded,
+                    iconColor: AppColors.primaryBlack,
+                    title: isArabic ? 'رقم الكافيه' : 'Cafe Phone',
+                    subtitle: cafePhone,
+                    onTap: () => _launchUrl('tel:$cafePhone'),
+                  ),
+
+                  // WhatsApp
                   _buildListTile(
                     icon: Icons.chat_bubble_outline_rounded,
                     iconColor: const Color(0xFF25D366),
                     title: isArabic ? 'واتساب الكافيه' : 'WhatsApp',
-                    subtitle: '+971 56 595 6180',
-                    onTap: () => _launchUrl('https://wa.me/971565956180'),
+                    subtitle: cafePhone,
+                    onTap: () => _launchUrl('https://wa.me/$whatsappNumber'),
                   ),
 
-                  // Email (saeed123_2007@hotmail.com)
+                  // Email
                   _buildListTile(
                     icon: Icons.mail_outline_rounded,
                     iconColor: const Color(0xFFEA4335),
                     title: isArabic ? 'البريد الإلكتروني' : 'Email',
-                    subtitle: 'saeed123_2007@hotmail.com',
-                    onTap: () => _launchUrl('mailto:saeed123_2007@hotmail.com'),
+                    subtitle: emailAddress,
+                    onTap: () => _launchUrl('mailto:$emailAddress'),
+                  ),
+
+                  // Location (Google Maps)
+                  _buildListTile(
+                    icon: Icons.location_on_outlined,
+                    iconColor: const Color(0xFF4285F4),
+                    title: isArabic ? 'فرع الخبيصي — العين' : 'Al Khabisi Branch',
+                    subtitle: isArabic ? 'عرض الموقع على الخريطة' : 'View on Google Maps',
+                    onTap: () => _launchUrl(mapsUrl),
                   ),
 
                   // Instagram
@@ -227,7 +282,7 @@ class N8Drawer extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Version 1.0.1 (Build 7)',
+                    'Version 1.0.1 (Build 9)',
                     style: GoogleFonts.dmSans(
                       fontSize: 9.5,
                       color: AppColors.secondaryText.withValues(alpha: 0.7),

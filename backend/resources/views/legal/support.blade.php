@@ -110,17 +110,38 @@
 
         <div class="contact-grid">
             <div class="contact-card">
+                <div class="icon">📞</div>
+                <h3>الاتصال المباشر</h3>
+                <p>0509004199</p>
+                <a href="tel:0509004199" class="btn">اتصال مباشر</a>
+            </div>
+
+            <div class="contact-card">
+                <div class="icon">☕</div>
+                <h3>رقم الكافيه</h3>
+                <p>0509002711</p>
+                <a href="tel:0509002711" class="btn">اتصال بالفرع</a>
+            </div>
+
+            <div class="contact-card">
                 <div class="icon">💬</div>
-                <h3>واتساب المباشر</h3>
+                <h3>واتساب الكافيه</h3>
                 <p>متاحون لخدمتك والرد على استفساراتك بشأن الطلبات والولاء</p>
-                <a href="https://wa.me/971500000000" class="btn" target="_blank">تواصل عبر WhatsApp</a>
+                <a href="https://wa.me/971509002711" class="btn" target="_blank">تواصل عبر WhatsApp</a>
             </div>
 
             <div class="contact-card">
                 <div class="icon">✉️</div>
                 <h3>البريد الإلكتروني</h3>
-                <p>للمقترحات والشكاوى والدعم الفني للتطبيق</p>
-                <a href="mailto:support@numbereight.ae" class="btn">إرسال بريد إلكتروني</a>
+                <p>info@no8.ae</p>
+                <a href="mailto:info@no8.ae" class="btn">إرسال بريد إلكتروني</a>
+            </div>
+
+            <div class="contact-card" style="grid-column: 1 / -1;">
+                <div class="icon">📍</div>
+                <h3>الفرع الرسمي</h3>
+                <p>فرع الخبيصي — العين — دولة الإمارات العربية المتحدة</p>
+                <a href="https://maps.google.com/?q=Number+Eight+Specialty+Coffee+Al+Ain" class="btn" target="_blank">عرض على خرائط Google</a>
             </div>
         </div>
 

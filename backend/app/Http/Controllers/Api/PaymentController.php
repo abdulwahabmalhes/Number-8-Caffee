@@ -41,7 +41,8 @@ class PaymentController extends Controller
             ], 400);
         }
 
-        return DB::transaction(function () use ($request, $stripeSecret) {
+        try {
+            return DB::transaction(function () use ($request, $stripeSecret) {
             $totalAmount = 0;
             $lineItems = [];
 
@@ -97,17 +98,25 @@ class PaymentController extends Controller
             }
 
             $vehicleId = null;
-            if ($request->order_type === 'car' && $request->has('vehicle_details')) {
-                $vDetails = $request->vehicle_details;
-                $vehicle = Vehicle::firstOrCreate(
-                    ['plate_number' => $vDetails['plate_number'] ?? 'Unknown'],
-                    [
-                        'plate_emirate' => $vDetails['plate_emirate'] ?? null,
-                        'vehicle_model' => $vDetails['vehicle_model'] ?? null,
-                        'vehicle_color' => $vDetails['vehicle_color'] ?? null,
-                    ]
-                );
-                $vehicleId = $vehicle->id;
+            if ($request->order_type === 'car' && $request->has('vehicle_details') && is_array($request->vehicle_details)) {
+                try {
+                    $vDetails = $request->vehicle_details;
+                    $plateNumber = trim($vDetails['plate_number'] ?? '');
+                    if (!empty($plateNumber)) {
+                        $vehicle = Vehicle::firstOrCreate(
+                            ['plate_number' => $plateNumber],
+                            [
+                                'plate_emirate' => $vDetails['plate_emirate'] ?? null,
+                                'vehicle_type' => $vDetails['vehicle_type'] ?? null,
+                                'vehicle_model' => $vDetails['vehicle_model'] ?? null,
+                                'vehicle_color' => $vDetails['vehicle_color'] ?? null,
+                            ]
+                        );
+                        $vehicleId = $vehicle->id;
+                    }
+                } catch (\Throwable $e) {
+                    \Log::warning('PaymentController: Vehicle record error: ' . $e->getMessage());
+                }
             }
 
             $firstBranch = \App\Models\Branch::first();
@@ -234,6 +243,13 @@ class PaymentController extends Controller
                 ], 400);
             }
         });
+        } catch (\Throwable $e) {
+            \Log::error('PaymentController createCheckoutSession error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'تعذر تجهيز بوابة الدفع في الوقت الحالي، يرجى المحاولة مرة أخرى.',
+            ], 500);
+        }
     }
 
     /**

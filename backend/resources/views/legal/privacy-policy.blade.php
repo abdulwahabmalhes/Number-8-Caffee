@@ -196,9 +196,10 @@
             <div class="card">
                 <h2>5. التواصل والدعم</h2>
                 <p>إذا كان لديك أي استفسار أو شكوى بخصوص سياسة الخصوصية أو بياناتك الشخصية، يسعدنا تواصلكم عبر:</p>
-                <p>البريد الإلكتروني: <a href="mailto:support@numbereight.ae" style="color:var(--gold);">support@numbereight.ae</a><br>
-                الهاتف / واتساب: +971 50 000 0000<br>
-                الموقع: دولة الإمارات العربية المتحدة</p>
+                <p>البريد الإلكتروني: <a href="mailto:info@no8.ae" style="color:var(--gold);">info@no8.ae</a><br>
+                الهاتف المباشر: 0509004199 | هاتف الكافيه: 0509002711<br>
+                واتساب: +971 50 900 2711<br>
+                العنوان: فرع الخبيصي — العين — دولة الإمارات العربية المتحدة</p>
             </div>
         </main>
 
@@ -233,9 +234,10 @@
             <div class="card">
                 <h2>5. Contact & Support</h2>
                 <p>If you have any questions or requests regarding your data, please contact our support team:</p>
-                <p>Email: <a href="mailto:support@numbereight.ae" style="color:var(--gold);">support@numbereight.ae</a><br>
-                Phone / WhatsApp: +971 50 000 0000<br>
-                Location: United Arab Emirates</p>
+                <p>Email: <a href="mailto:info@no8.ae" style="color:var(--gold);">info@no8.ae</a><br>
+                Direct Call: 0509004199 | Cafe Phone: 0509002711<br>
+                WhatsApp: +971 50 900 2711<br>
+                Location: Al Khabisi Branch — Al Ain — United Arab Emirates</p>
             </div>
         </main>
 
