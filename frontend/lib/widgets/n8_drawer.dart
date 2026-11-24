@@ -282,7 +282,7 @@ class N8Drawer extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Version 1.0.1 (Build 9)',
+                    'Version 1.0.2 (Build 10)',
                     style: GoogleFonts.dmSans(
                       fontSize: 9.5,
                       color: AppColors.secondaryText.withValues(alpha: 0.7),

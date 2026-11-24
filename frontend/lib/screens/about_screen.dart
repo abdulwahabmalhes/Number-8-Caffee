@@ -204,7 +204,7 @@ class AboutScreen extends ConsumerWidget {
 
                     const SizedBox(height: 20),
                     Text(
-                      'الإصدار 1.0.1 (Build 9)',
+                      'الإصدار 1.0.2 (Build 10)',
                       style: GoogleFonts.dmSans(fontSize: 11.5, color: AppColors.secondaryText),
                     ),
                     const SizedBox(height: 20),
