@@ -113,7 +113,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
   int _selectedCategoryIndex = 0;
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
-  int _currentNavIndex = 0;
+  final int _currentNavIndex = 0;
 
   @override
   void dispose() {
@@ -363,7 +363,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       scrollDirection: Axis.horizontal,
                       itemCount: categoriesList.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 8),
+                      separatorBuilder: (_, _) => const SizedBox(width: 8),
                       itemBuilder: (context, index) {
                         final isSelected = safeCategoryIndex == index;
                         final catName = isArabic ? categoriesList[index]['ar']! : categoriesList[index]['en']!;
@@ -518,7 +518,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                 child: Image.network(
                   prod.imageUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     color: AppColors.background,
                     child: const Center(
                       child: Icon(Icons.local_cafe_outlined, size: 40, color: AppColors.secondaryText),

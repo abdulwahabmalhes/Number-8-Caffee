@@ -15,6 +15,9 @@ use App\Http\Controllers\Api\CustomerAuthController;
 // Phase 4 APIs
 Route::prefix('v1')->group(function () {
     Route::post('/auth/login', [CustomerAuthController::class, 'login']);
+    Route::post('/auth/firebase-login', [CustomerAuthController::class, 'firebaseLogin']);
+    Route::post('/auth/send-otp', [CustomerAuthController::class, 'sendOtp']);
+    Route::post('/auth/verify-otp', [CustomerAuthController::class, 'verifyOtp']);
     Route::delete('/customer/account', [CustomerAuthController::class, 'deleteAccount'])->middleware('auth:sanctum');
 
     Route::post('/scan-qr', [TableController::class, 'scanQr']);

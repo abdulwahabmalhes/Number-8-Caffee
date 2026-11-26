@@ -209,7 +209,7 @@ class _CarServiceScreenState extends ConsumerState<CarServiceScreen> {
                           'assets/images/car_pickup.png',
                           height: 145,
                           fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => Container(
+                          errorBuilder: (_, _, _) => Container(
                             height: 120,
                             decoration: BoxDecoration(
                               color: AppColors.cardBackground,
@@ -261,7 +261,7 @@ class _CarServiceScreenState extends ConsumerState<CarServiceScreen> {
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
                             itemCount: savedVehicles.length,
-                            separatorBuilder: (_, __) => const SizedBox(width: 8),
+                            separatorBuilder: (_, _) => const SizedBox(width: 8),
                             itemBuilder: (ctx, i) {
                               final v = savedVehicles[i];
                               return ActionChip(

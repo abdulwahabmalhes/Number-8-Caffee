@@ -9,7 +9,6 @@ import '../providers/favorites_provider.dart';
 import '../providers/user_data_provider.dart';
 import 'orders_history_screen.dart';
 import 'favorites_screen.dart';
-import 'addresses_screen.dart';
 import 'vehicles_screen.dart';
 import 'about_screen.dart';
 import 'support_screen.dart';
@@ -68,10 +67,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         appBar: AppBar(
           backgroundColor: AppColors.background,
           elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: AppColors.primaryBlack),
-            onPressed: () => Navigator.pop(context),
-          ),
+          automaticallyImplyLeading: false,
+          leading: Navigator.canPop(context)
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: AppColors.primaryBlack),
+                  onPressed: () => Navigator.pop(context),
+                )
+              : null,
           centerTitle: true,
           title: Text(
             isArabic ? 'حسابي' : 'My Account',

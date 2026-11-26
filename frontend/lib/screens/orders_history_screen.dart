@@ -640,7 +640,7 @@ class _OrdersHistoryScreenState extends ConsumerState<OrdersHistoryScreen> {
                       width: 84,
                       height: 84,
                       fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => const Icon(Icons.qr_code_2, size: 70),
+                      errorBuilder: (_, _, _) => const Icon(Icons.qr_code_2, size: 70),
                     ),
                   ),
                 ),
@@ -732,10 +732,13 @@ class _OrdersHistoryScreenState extends ConsumerState<OrdersHistoryScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: AppColors.primaryBlack),
-          onPressed: () => Navigator.pop(context),
-        ),
+        automaticallyImplyLeading: false,
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: AppColors.primaryBlack),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
         title: Text(
           isArabic ? 'سجل الطلبات' : 'Order History',
           style: GoogleFonts.tajawal(
@@ -796,7 +799,7 @@ class _OrdersHistoryScreenState extends ConsumerState<OrdersHistoryScreen> {
                         child: ListView.separated(
                           padding: const EdgeInsets.all(16),
                           itemCount: _orders.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 14),
+                          separatorBuilder: (_, _) => const SizedBox(height: 14),
                           itemBuilder: (context, index) {
                             final order = _orders[index];
                             return _buildOrderCard(order, isArabic);

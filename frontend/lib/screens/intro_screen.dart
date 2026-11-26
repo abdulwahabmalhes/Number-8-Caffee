@@ -110,7 +110,7 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
                     Image.asset(
                       slide.imageAsset,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(color: const Color(0xFF151515)),
+                      errorBuilder: (_, _, _) => Container(color: const Color(0xFF151515)),
                     ),
 
                     // Atmospheric Dark Vignette Overlay

@@ -25,7 +25,7 @@ class _TableQrScreenState extends ConsumerState<TableQrScreen> with SingleTicker
   late AnimationController _animController;
   final TextEditingController _tableInputController = TextEditingController();
   bool _isLoading = false;
-  int _currentNavIndex = 0;
+  final int _currentNavIndex = 0;
 
   @override
   void initState() {
@@ -260,7 +260,7 @@ class _TableQrScreenState extends ConsumerState<TableQrScreen> with SingleTicker
                                       width: 150,
                                       height: 150,
                                       fit: BoxFit.contain,
-                                      errorBuilder: (_, __, ___) => const Icon(
+                                      errorBuilder: (_, _, _) => const Icon(
                                         Icons.qr_code_2,
                                         size: 130,
                                         color: AppColors.primaryBlack,

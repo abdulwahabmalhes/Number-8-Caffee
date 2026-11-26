@@ -1,7 +1,9 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme.dart';
 import 'core/api_client.dart';
+import 'firebase_options.dart';
 import 'providers/locale_provider.dart';
 import 'screens/intro_screen.dart';
 import 'screens/main_screen.dart';
@@ -9,6 +11,11 @@ import 'providers/auth_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (DefaultFirebaseOptions.isSupportedOnCurrentPlatform) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
   await ApiClient.init();
   runApp(const ProviderScope(child: NumberEightApp()));
 }

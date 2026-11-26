@@ -4,14 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme.dart';
 import '../providers/locale_provider.dart';
 import '../widgets/n8_logo.dart';
-import '../widgets/n8_bottom_nav.dart';
 import 'table_qr_screen.dart';
 import 'car_service_screen.dart';
 import 'menu_screen.dart';
-import 'orders_history_screen.dart';
-import 'loyalty_tier_screen.dart';
-import 'loyalty_punch_screen.dart';
-import 'profile_screen.dart';
 
 class ServiceSelectionScreen extends ConsumerStatefulWidget {
   const ServiceSelectionScreen({super.key});

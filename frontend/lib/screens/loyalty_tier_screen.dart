@@ -3,10 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme.dart';
 import '../providers/locale_provider.dart';
-import '../widgets/n8_bottom_nav.dart';
 import 'loyalty_punch_screen.dart';
-import 'profile_screen.dart';
-import 'orders_history_screen.dart';
 
 class LoyaltyTierScreen extends ConsumerStatefulWidget {
   const LoyaltyTierScreen({super.key});

@@ -36,7 +36,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
   Timer? _timer;
   int _currentStep = 1; // 0: تم الاستلام, 1: قيد التجهيز, 2: جاهز للاستلام, 3: تم التسليم
   bool _hasArrived = false;
-  int _currentNavIndex = 1;
+  final int _currentNavIndex = 1;
 
   Timer? _statusTimer;
 

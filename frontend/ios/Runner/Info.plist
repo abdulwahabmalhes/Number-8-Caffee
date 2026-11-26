@@ -26,6 +26,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>numbereight</string>
+				<string>app-1-411342658301-ios-160f5d9c92c33a991b7c94</string>
 			</array>
 		</dict>
 	</array>
@@ -78,6 +79,10 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
 	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>

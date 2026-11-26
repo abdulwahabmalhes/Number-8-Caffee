@@ -200,7 +200,7 @@ class _OffersScreenState extends ConsumerState<OffersScreen> {
               : ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                   itemCount: offers.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 18),
+                  separatorBuilder: (_, _) => const SizedBox(height: 18),
                   itemBuilder: (context, index) {
                     final offer = offers[index];
                     return _buildOfferCard(offer, isArabic);
@@ -243,7 +243,7 @@ class _OffersScreenState extends ConsumerState<OffersScreen> {
                     height: 150,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       height: 120,
                       color: const Color(0xFF161616),
                       child: const Center(

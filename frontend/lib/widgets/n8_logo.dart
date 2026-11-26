@@ -49,7 +49,7 @@ class N8Logo extends StatelessWidget {
             child: Image.asset(
               'assets/images/logo.png',
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => const Center(
+              errorBuilder: (_, _, _) => const Center(
                 child: Icon(Icons.coffee, color: AppColors.primaryBlack),
               ),
             ),

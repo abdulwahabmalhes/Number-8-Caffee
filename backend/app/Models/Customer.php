@@ -12,8 +12,18 @@ class Customer extends Authenticatable
     protected $fillable = [
         'name',
         'phone',
+        'password',
         'otp_code',
         'otp_expires_at',
+    ];
+
+    protected $hidden = [
+        'password',
+        'otp_code',
+    ];
+
+    protected $casts = [
+        'otp_expires_at' => 'datetime',
     ];
 
     public function orders()
