@@ -1,27 +1,51 @@
-import { createContext, useContext, type PropsWithChildren } from 'react';
+import { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react';
 import type { AuthenticatedUser, Permission } from '../types/erp';
+import { DEMO_USER, sessionAdapter } from '../services/sessionAdapter';
 
-const demoUser: AuthenticatedUser = {
-  id: 'demo-manager',
-  name: 'Mariam Al Mansoori',
-  role: 'Branch Manager',
-  branchIds: ['dubai-flagship'],
-  permissions: ['dashboard.view', 'pos.use', 'kitchen.view', 'inventory.view', 'accounting.view', 'reports.view'],
-};
+interface AuthContextValue {
+  user: AuthenticatedUser;
+  isDemo: boolean;
+  isLoading: boolean;
+}
 
-const AuthContext = createContext<AuthenticatedUser | null>(null);
+const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: PropsWithChildren) {
-  // Development-only identity. Production auth will use an HttpOnly Sanctum session and CSRF flow.
-  return <AuthContext.Provider value={demoUser}>{children}</AuthContext.Provider>;
+  const [user, setUser] = useState<AuthenticatedUser>(DEMO_USER);
+  const [isLoading, setIsLoading] = useState(!sessionAdapter.isDemoMode());
+
+  useEffect(() => {
+    if (!sessionAdapter.isDemoMode()) {
+      sessionAdapter
+        .fetchSession()
+        .then((fetchedUser) => {
+          setUser(fetchedUser);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, []);
+
+  return (
+    <AuthContext.Provider value={{ user, isDemo: !!user.isDemo, isLoading }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
-export function useAuth() {
-  const user = useContext(AuthContext);
-  if (!user) throw new Error('AuthProvider is required.');
-  return user;
+export function useAuth(): AuthenticatedUser {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('AuthProvider is required.');
+  return context.user;
 }
 
-export function useCan(permission: Permission) {
+export function useAuthContext(): AuthContextValue {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('AuthProvider is required.');
+  return context;
+}
+
+export function useCan(permission: Permission): boolean {
   return useAuth().permissions.includes(permission);
 }

@@ -2,10 +2,13 @@
 
 # Environment & Secret Configurations
 .env
-.env.backup
-.env.production
+.env.*
+!.env.example
 *.key
 auth.json
+*.sqlite
+*.sqlite3
+*.db
 
 # Backend (Laravel)
 /backend/vendor/

@@ -3,6 +3,10 @@ export type Permission =
   | 'pos.use'
   | 'kitchen.view'
   | 'inventory.view'
+  | 'products.manage'
+  | 'purchasing.manage'
+  | 'suppliers.manage'
+  | 'customers.manage'
   | 'accounting.view'
   | 'employees.manage'
   | 'reports.view';
@@ -13,6 +17,9 @@ export interface AuthenticatedUser {
   role: string;
   branchIds: string[];
   permissions: Permission[];
+  isDemo?: boolean;
+  tenantSlug?: string;
+  tenantName?: string;
 }
 
 export interface Product {
